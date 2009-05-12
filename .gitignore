@@ -1,0 +1,13 @@
+*.o
+*.fasl
+*.FASL
+*.lisp-temp
+*.tmp
+*~
+.gdb_history
+*.tar.gz
+*.tgz
+*.tar.bz2
+*.tbz
+#*
+.#*
