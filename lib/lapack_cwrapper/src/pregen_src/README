@@ -1,0 +1,37 @@
+
+exceptional routine for LAPACK that are not handle by the script
+
+--------------------------------------------------------------------------------
+	lapack_cheevr.c
+	lapack_cstegr.c
+	lapack_dsyevr.c
+	lapack_dstegr.c
+	lapack_sstegr.c
+	lapack_ssyevr.c
+	lapack_zheevr.c
+	lapack_zstegr.c
+
+	the size of ISUPPZ (integer array) is 2*M
+	there is two ISUPPZ in the C-interface: ISUPPZ with int and F77_ISUPPZ with F77_INT
+	At the entry F77_ISUPPZ need to be allocated, on exit
+	F77_ISUPPZ need to be converted to ISUPPZ
+
+	M is the number of eigenvalues returned that SYEVR/HEEVR has found.
+	not necessarily known since the user cna ask for eigenvalue in an interval (RANGE='V')
+--------------------------------------------------------------------------------
+	lapack_dbdsdc.c
+	lapack_sbdsdc.c
+
+	Problem with LDIQ
+--------------------------------------------------------------------------------
+	lapack_dlasd1.c
+	lapack_dlasd2.c
+	lapack_dsbgvx.c
+	lapack_dstevr.c
+
+	lapack_slasd1.c
+	lapack_slasd2.c
+	lapack_ssbgvx.c
+	lapack_sstevr.c
+
+

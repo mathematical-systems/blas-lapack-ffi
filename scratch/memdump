@@ -1,0 +1,86 @@
+Mappings from /proc/self/maps:
+00400000-00405000 r-xp 00000000 08:02 11364926                           /usr/local/lib/acl81.64/alisp
+00504000-00505000 rw-p 00004000 08:02 11364926                           /usr/local/lib/acl81.64/alisp
+00505000-00509000 rw-p 00505000 00:00 0 
+01030000-01051000 rw-p 01030000 00:00 0                                  [heap]
+1000000000-10005e2000 rwxp 0000e000 08:02 11362375                       /usr/local/lib/acl81.64/alisp.dxl
+10005e2000-10007ea000 rwxp 10005e2000 00:00 0 
+10007ea000-1000904000 rwxp 005f0000 08:02 11362375                       /usr/local/lib/acl81.64/alisp.dxl
+1000904000-1000a0a000 rwxp 1000904000 00:00 0 
+1000a0a000-1000a10000 rwxp 0070a000 08:02 11362375                       /usr/local/lib/acl81.64/alisp.dxl
+1000a10000-1000b0c000 rwxp 1000a10000 00:00 0 
+1000b0c000-1000b10000 rwxp 00710000 08:02 11362375                       /usr/local/lib/acl81.64/alisp.dxl
+1000b10000-1002d02000 rwxp 1000b10000 00:00 0 
+2000000000-2000040000 rwxp 00714000 08:02 11362375                       /usr/local/lib/acl81.64/alisp.dxl
+2000040000-20000fa000 rwxp 2000040000 00:00 0 
+7f54ce2b4000-7f54cef78000 r-xp 00000000 08:02 13721747                   /opt/intel/mkl/10.1.2.024/lib/em64t/libmkl_mc.so
+7f54cef78000-7f54cf077000 ---p 00cc4000 08:02 13721747                   /opt/intel/mkl/10.1.2.024/lib/em64t/libmkl_mc.so
+7f54cf077000-7f54cf084000 rw-p 00cc3000 08:02 13721747                   /opt/intel/mkl/10.1.2.024/lib/em64t/libmkl_mc.so
+7f54cf084000-7f54cf2ee000 r-xp 00000000 08:02 13721740                   /opt/intel/mkl/10.1.2.024/lib/em64t/libmkl_intel_lp64.so
+7f54cf2ee000-7f54cf3ed000 ---p 0026a000 08:02 13721740                   /opt/intel/mkl/10.1.2.024/lib/em64t/libmkl_intel_lp64.so
+7f54cf3ed000-7f54cf3f4000 rw-p 00269000 08:02 13721740                   /opt/intel/mkl/10.1.2.024/lib/em64t/libmkl_intel_lp64.so
+7f54cf3f4000-7f54cf3fa000 rw-p 7f54cf3f4000 00:00 0 
+7f54cf3fa000-7f54cfbe8000 r-xp 00000000 08:02 13721736                   /opt/intel/mkl/10.1.2.024/lib/em64t/libmkl_gnu_thread.so
+7f54cfbe8000-7f54cfce7000 ---p 007ee000 08:02 13721736                   /opt/intel/mkl/10.1.2.024/lib/em64t/libmkl_gnu_thread.so
+7f54cfce7000-7f54cfcf7000 rw-p 007ed000 08:02 13721736                   /opt/intel/mkl/10.1.2.024/lib/em64t/libmkl_gnu_thread.so
+7f54cfcf7000-7f54cfd3f000 rw-p 7f54cfcf7000 00:00 0 
+7f54cfd3f000-7f54cfe16000 r-xp 00000000 08:02 13721728                   /opt/intel/mkl/10.1.2.024/lib/em64t/libmkl_core.so
+7f54cfe16000-7f54cff15000 ---p 000d7000 08:02 13721728                   /opt/intel/mkl/10.1.2.024/lib/em64t/libmkl_core.so
+7f54cff15000-7f54cff1a000 rw-p 000d6000 08:02 13721728                   /opt/intel/mkl/10.1.2.024/lib/em64t/libmkl_core.so
+7f54cff1a000-7f54cff34000 rw-p 7f54cff1a000 00:00 0 
+7f54cff34000-7f54cff3e000 r-xp 00000000 08:02 4841497                    /lib/libnss_nis-2.9.so
+7f54cff3e000-7f54d013d000 ---p 0000a000 08:02 4841497                    /lib/libnss_nis-2.9.so
+7f54d013d000-7f54d013e000 r--p 00009000 08:02 4841497                    /lib/libnss_nis-2.9.so
+7f54d013e000-7f54d013f000 rw-p 0000a000 08:02 4841497                    /lib/libnss_nis-2.9.so
+7f54d013f000-7f54d0155000 r-xp 00000000 08:02 4841492                    /lib/libnsl-2.9.so
+7f54d0155000-7f54d0355000 ---p 00016000 08:02 4841492                    /lib/libnsl-2.9.so
+7f54d0355000-7f54d0356000 r--p 00016000 08:02 4841492                    /lib/libnsl-2.9.so
+7f54d0356000-7f54d0357000 rw-p 00017000 08:02 4841492                    /lib/libnsl-2.9.so
+7f54d0357000-7f54d0359000 rw-p 7f54d0357000 00:00 0 
+7f54d0359000-7f54d0361000 r-xp 00000000 08:02 4841493                    /lib/libnss_compat-2.9.so
+7f54d0361000-7f54d0560000 ---p 00008000 08:02 4841493                    /lib/libnss_compat-2.9.so
+7f54d0560000-7f54d0561000 r--p 00007000 08:02 4841493                    /lib/libnss_compat-2.9.so
+7f54d0561000-7f54d0562000 rw-p 00008000 08:02 4841493                    /lib/libnss_compat-2.9.so
+7f54d0562000-7f54d056e000 r-xp 00000000 08:02 4841495                    /lib/libnss_files-2.9.so
+7f54d056e000-7f54d076d000 ---p 0000c000 08:02 4841495                    /lib/libnss_files-2.9.so
+7f54d076d000-7f54d076e000 r--p 0000b000 08:02 4841495                    /lib/libnss_files-2.9.so
+7f54d076e000-7f54d076f000 rw-p 0000c000 08:02 4841495                    /lib/libnss_files-2.9.so
+7f54d076f000-7f54d0809000 r-xp 00000000 08:02 11365087                   /usr/local/lib/acl81.64/libacli817.so
+7f54d0809000-7f54d0909000 ---p 0009a000 08:02 11365087                   /usr/local/lib/acl81.64/libacli817.so
+7f54d0909000-7f54d0915000 rw-p 0009a000 08:02 11365087                   /usr/local/lib/acl81.64/libacli817.so
+7f54d0915000-7f54d09f4000 rw-p 7f54d0915000 00:00 0 
+7f54d09f4000-7f54d0b5c000 r-xp 00000000 08:02 4841486                    /lib/libc-2.9.so
+7f54d0b5c000-7f54d0d5c000 ---p 00168000 08:02 4841486                    /lib/libc-2.9.so
+7f54d0d5c000-7f54d0d60000 r--p 00168000 08:02 4841486                    /lib/libc-2.9.so
+7f54d0d60000-7f54d0d61000 rw-p 0016c000 08:02 4841486                    /lib/libc-2.9.so
+7f54d0d61000-7f54d0d66000 rw-p 7f54d0d61000 00:00 0 
+7f54d0d66000-7f54d0d68000 r-xp 00000000 08:02 4841489                    /lib/libdl-2.9.so
+7f54d0d68000-7f54d0f68000 ---p 00002000 08:02 4841489                    /lib/libdl-2.9.so
+7f54d0f68000-7f54d0f69000 r--p 00002000 08:02 4841489                    /lib/libdl-2.9.so
+7f54d0f69000-7f54d0f6a000 rw-p 00003000 08:02 4841489                    /lib/libdl-2.9.so
+7f54d0f6a000-7f54d0fee000 r-xp 00000000 08:02 4841490                    /lib/libm-2.9.so
+7f54d0fee000-7f54d11ed000 ---p 00084000 08:02 4841490                    /lib/libm-2.9.so
+7f54d11ed000-7f54d11ee000 r--p 00083000 08:02 4841490                    /lib/libm-2.9.so
+7f54d11ee000-7f54d11ef000 rw-p 00084000 08:02 4841490                    /lib/libm-2.9.so
+7f54d11ef000-7f54d1206000 r-xp 00000000 08:02 4841500                    /lib/libpthread-2.9.so
+7f54d1206000-7f54d1405000 ---p 00017000 08:02 4841500                    /lib/libpthread-2.9.so
+7f54d1405000-7f54d1406000 r--p 00016000 08:02 4841500                    /lib/libpthread-2.9.so
+7f54d1406000-7f54d1407000 rw-p 00017000 08:02 4841500                    /lib/libpthread-2.9.so
+7f54d1407000-7f54d140b000 rw-p 7f54d1407000 00:00 0 
+7f54d140b000-7f54d142b000 r-xp 00000000 08:02 4841483                    /lib/ld-2.9.so
+7f54d143e000-7f54d14aa000 r-xp 00000000 08:02 13721713                   /opt/intel/mkl/10.1.2.024/lib/em64t/libiomp5.so
+7f54d14aa000-7f54d15aa000 ---p 0006c000 08:02 13721713                   /opt/intel/mkl/10.1.2.024/lib/em64t/libiomp5.so
+7f54d15aa000-7f54d15af000 rw-p 0006c000 08:02 13721713                   /opt/intel/mkl/10.1.2.024/lib/em64t/libiomp5.so
+7f54d15af000-7f54d15b6000 rw-p 7f54d15af000 00:00 0 
+7f54d15b6000-7f54d15f5000 r--p 00000000 08:02 5955612                    /usr/lib/locale/en_US.utf8/LC_CTYPE
+7f54d15f5000-7f54d15f8000 rw-p 7f54d15f5000 00:00 0 
+7f54d161e000-7f54d1620000 rw-p 7f54d161e000 00:00 0 
+7f54d1620000-7f54d1627000 r--s 00000000 08:02 5931573                    /usr/lib/gconv/gconv-modules.cache
+7f54d1627000-7f54d162a000 rw-p 7f54d1627000 00:00 0 
+7f54d162a000-7f54d162b000 r--p 0001f000 08:02 4841483                    /lib/ld-2.9.so
+7f54d162b000-7f54d162c000 rw-p 00020000 08:02 4841483                    /lib/ld-2.9.so
+7fd311c54000-7fd3124c9000 r-xs 00000000 08:02 11364699                   /usr/local/lib/acl81.64/acli817.pll
+7fffd9551000-7fffd962b000 rwxp 7ffffff24000 00:00 0                      [stack]
+7fffd962b000-7fffd962c000 rw-p 7fffffffe000 00:00 0 
+7fffd97ff000-7fffd9800000 r-xp 7fffd97ff000 00:00 0                      [vdso]
+ffffffffff600000-ffffffffff601000 r-xp 00000000 00:00 0                  [vsyscall]

@@ -1,0 +1,40 @@
+README File for C Wrapper
+-------------------------
+
+Webpage for any info : http://icl.cs.utk.edu/~delmas/
+
+I/ Installation
+
+0) Edit make.inc to fit your system
+   Important things to change are :
+	- ROOT_DIR : where make.inc is
+	- BLASLIB : the blas library
+	- LAPACKLIB : the lapack library
+	- CBLASLIB : the cblas library
+	- INCLUDE : you need to point to the cblas source directory. If you do not want to build the examples, just leave it blank.
+	- LASRCDIR : lapack source directory, used by the script that generates the wrapper
+	
+1) Generate the c wrapper
+	make source 
+
+	This will generate the .c files for every lapack function in src, and the .h in include. Will also generate the testing wrapper in ../testing (more below).
+
+2) Compile the c wrapper
+	make library
+	
+	This will build lapack_wrapper.a in ../lib.
+
+3) Generate the test wrapper
+	make test
+
+	This will build lapack_testing.a in ../lib.
+
+II/ Usage
+	To use the LAPACK c wrapper, just link your program with the lapack_wrapper.a library in the lib directory. The function names of the c functions are the name of the lapack routines, lowercase, with lapack_ in front of them (so, DGESV will be called by lapack_dgesv). The parameters obey the following rules :
+	- logical is to be cast with long int (it may depend on your compiler, but this is the most probable case)
+	- complex and complex*16 are respectively, arrays of size 2 of float or double.
+	- scalar input parameter that are not complex are passed by value. Other parameters are passed by adress.
+
+	If in any doubt, just have a look at the lapack_function.c, where function is the name of the subroutine you want to call. The code is really straightforward. You can also check the website (link above). 
+
+	

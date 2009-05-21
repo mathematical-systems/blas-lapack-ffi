@@ -1,0 +1,8 @@
+This directory contains a few program that illustrate how to use the functions provided by the LAPACK Wrapper. Please note that these programs use cblas to perfrom tests.
+
+- example2 : solving a linear system in single precision (sgesv)
+- example4 : solving a linear system in complex, double precision (zgesv)
+- example_syev* : illustrate the call to dsyev* and zheev*
+	These routines are used to compute eigen information from a matrix, and use different algorithms (see the doc for dsyev, dsyevd, dsyevr and dsyevx for more info).
+
+	
