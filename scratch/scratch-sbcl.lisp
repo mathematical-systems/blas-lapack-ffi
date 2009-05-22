@@ -31,7 +31,7 @@
 
 
 (eval-when (:compile-toplevel :load-toplevel :execute)
-  (load-foreign-library "/home/huang/workspace/intel-mkl-wrapper/src/lapack_wrapper.so"))
+  (load-foreign-library "/home/huang/workspace/intel-mkl-wrapper/scratch/lapack_wrapper.so"))
 
 (defun make-static-array (dimensions &key element-type initial-element initial-contents)
   #+allegro

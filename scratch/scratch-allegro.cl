@@ -27,7 +27,7 @@
 ;;   (load-foreign-library "libcblas.so.3"))
 
 (eval-when (:compile-toplevel :load-toplevel)
-  (load "/home/huang/workspace/intel-mkl-wrapper/src/lapack_wrapper.so"))
+  (load "/home/huang/workspace/intel-mkl-wrapper/scratch/lapack_wrapper.so"))
 
 (defun make-static-array (dimensions &key element-type initial-element initial-contents)
   (apply #'make-array
