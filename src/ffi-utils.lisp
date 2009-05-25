@@ -60,6 +60,7 @@
     (apply #'build-exp array-bindings body)))
 
 ;;; defcfun for C functions and defffun for Fortran functions
+;;; TODO: add support for complex type
 (defmacro defcfun (name-and-options return-type &rest args)
   (multiple-value-bind (lisp-name foreign-name options)
       (cffi::parse-name-and-options name-and-options)
@@ -73,7 +74,8 @@
 				     (eq (first var-type) :array))
 				(and (or (eq parsed-type 'cffi::foreign-typedef)
 					 (eq parsed-type 'cffi::enhanced-typedef))
-				     (eq (type-of (cffi::actual-type parsed-type)) 'cffi::foreign-array-type))))
+				     (eq (type-of (cffi::actual-type (cffi::parse-type var-type)))
+					 'cffi::foreign-array-type))))
 			 collect (list var-name var-type) into array-args
 		       else
 			 collect (list var-name var-type) into other-args
@@ -92,7 +94,8 @@
 					 (eq (first var-type) :array))
 				    (and (or (eq parsed-type 'cffi::foreign-typedef)
 					     (eq parsed-type 'cffi::enhanced-typedef))
-					 (eq (type-of (cffi::actual-type parsed-type)) 'cffi::foreign-array-type))))
+					 (eq (type-of (cffi::actual-type (cffi::parse-type var-type)))
+					     'cffi::foreign-array-type))))
 			     collect (list var-name :pointer)
 			   else
 			     collect (list var-name var-type))))
@@ -108,6 +111,7 @@
 
 ;;; defcfun for fortran calling convention
 ;;; TODO: test passing structs
+;;; TODO: add support for complex type
 (defmacro defffun (name-and-options return-type &rest args)
   (labels ((extract-pass-by-reference-args (args)
 	     (loop for (var-name var-type) in args
@@ -117,7 +121,8 @@
 			    (eq parsed-type 'cffi::foreign-struct-type)
 			    (and (or (eq parsed-type 'cffi::foreign-typedef)
 				     (eq parsed-type 'cffi::enhanced-typedef))
-				 (eq (type-of (cffi::actual-type parsed-type)) 'cffi::foreign-pointer-type))))
+				 (eq (type-of (cffi::actual-type (cffi::parse-type var-type)))
+				     'cffi::foreign-pointer-type))))
 		     collect (list var-name var-type) into pass-by-reference-args
 		   else
 		     collect (list var-name var-type) into other-args
@@ -128,7 +133,8 @@
 			(or (member var-type '(:char :string))
 			    (and (or (eq parsed-type 'cffi::foreign-typedef)
 				     (eq parsed-type 'cffi::enhanced-typedef))
-				 (eq (type-of (cffi::actual-type parsed-type)) 'cffi::foreign-string-type))))
+				 (eq (type-of (cffi::actual-type (cffi::parse-type var-type)))
+				     'cffi::foreign-string-type))))
 		     collect (list var-name var-type) into string-args
 		   else
 		     collect (list var-name var-type) into other-args
@@ -154,7 +160,7 @@
 					   (cons (first binding) (gensym (symbol-name (first binding)))))
 					 immediate-args))
 		 (temp-bindings (mapcar (lambda (name binding)
-					  (list (cdr name) (second binding)))
+					  `(,(cdr name) ',(second binding)))
 					temp-arg-names immediate-args))
 		 (temp-string-arg-names (mapcar (lambda (binding)
 						  (cons (first binding) (gensym (symbol-name (first binding)))))
@@ -167,7 +173,7 @@
 			  (setf
 			   ,@(loop for binding in immediate-args
 				   for temp-var in temp-arg-names
-				   collect `(cffi:mem-ref ,(cdr temp-var) ,(second binding))
+				   collect `(cffi:mem-ref ,(cdr temp-var) ',(second binding))
 				   collect `,(first binding)))
 			  (locally ,@body)))
 		     (build-body-with-foreign-strings-decls (&rest body)
@@ -188,7 +194,8 @@
 					   (eq (first var-type) :array))
 				      (and (or (eq parsed-type 'cffi::foreign-typedef)
 					       (eq parsed-type 'cffi::enhanced-typedef))
-					   (eq (type-of (cffi::actual-type parsed-type)) 'cffi::foreign-array-type))))
+					   (eq (type-of (cffi::actual-type (cffi::parse-type var-type)))
+					       'cffi::foreign-array-type))))
 			       collect (list var-name var-type) into array-args
 			     else
 			       collect (list var-name var-type) into other-args
