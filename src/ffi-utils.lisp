@@ -1,5 +1,17 @@
 (in-package :msi.ffi-utils)
 
+
+;;; TYPE: foreign complex type declaration
+(cffi:defcstruct complex-float
+  (realpart :float)
+  (imagpart :float))
+
+(cffi:defcstruct complex-double
+  (realpart :double)
+  (imagpart :double))
+
+
+;;; FUNCTION: make-static-array
 (defun make-static-array (dimensions &key element-type initial-element initial-contents)
   #+allegro
   (apply #'make-array
@@ -26,6 +38,7 @@
   )
 
 
+;;; MACRO: with-safe-foreign-function-call-settings
 (defmacro with-safe-foreign-function-call-settings (&body body)
   #+allegro
   `(excl:without-interrupts ,@body)
@@ -38,6 +51,7 @@
   )
 
 
+;;; MACRO: with-arrays-as-foreign-arrays
 (defmacro with-arrays-as-foreign-arrays ((&rest array-bindings) &body body)
   (declare (ignorable array-bindings))
   #+allegro
@@ -59,8 +73,9 @@
 		   (t`(locally ,@body)))))
     (apply #'build-exp array-bindings body)))
 
-;;; defcfun for C functions and defffun for Fortran functions
+;;; MACRO: defcfun for C functions and defffun for Fortran functions
 ;;; TODO: add support for complex type
+;;; FIXME: fix parse-type
 (defmacro defcfun (name-and-options return-type &rest args)
   (multiple-value-bind (lisp-name foreign-name options)
       (cffi::parse-name-and-options name-and-options)
@@ -109,41 +124,38 @@
 	       ,body)))))))
 
 
-;;; defcfun for fortran calling convention
+;;; MACRO: defcfun for fortran calling convention
 ;;; TODO: test passing structs
-;;; TODO: add support for complex type
+;;; TODO: reduce overhead
+;;; TODO: add type checking
+;;; TODO: add type declarations
 (defmacro defffun (name-and-options return-type &rest args)
-  (labels ((extract-pass-by-reference-args (args)
+  (labels ((string-type-p (var-type)
+	     (member var-type '(:char :string)))
+	   (pointer-type-p (var-type)
+	     (and (not (string-type-p var-type))
+		  (not (member var-type '(complex-float complex-double)))
+		  (eq (cffi::canonicalize-foreign-type var-type) :pointer)))
+	   (extract-pass-by-reference-args (args)
 	     (loop for (var-name var-type) in args
-		   if (let ((parsed-type (type-of (cffi::parse-type var-type))))
-			(or (eq parsed-type 'cffi::foreign-pointer-type)
-			    (eq parsed-type 'cffi::foreign-array-type)
-			    (eq parsed-type 'cffi::foreign-struct-type)
-			    (and (or (eq parsed-type 'cffi::foreign-typedef)
-				     (eq parsed-type 'cffi::enhanced-typedef))
-				 (eq (type-of (cffi::actual-type (cffi::parse-type var-type)))
-				     'cffi::foreign-pointer-type))))
+		   if (pointer-type-p var-type)
 		     collect (list var-name var-type) into pass-by-reference-args
 		   else
 		     collect (list var-name var-type) into other-args
 		   finally (return (values pass-by-reference-args other-args))))
 	   (extract-string-args (args)
 	     (loop for (var-name var-type) in args
-		   if (let ((parsed-type (type-of (cffi::parse-type var-type))))
-			(or (member var-type '(:char :string))
-			    (and (or (eq parsed-type 'cffi::foreign-typedef)
-				     (eq parsed-type 'cffi::enhanced-typedef))
-				 (eq (type-of (cffi::actual-type (cffi::parse-type var-type)))
-				     'cffi::foreign-string-type))))
+		   if (string-type-p var-type)
 		     collect (list var-name var-type) into string-args
 		   else
 		     collect (list var-name var-type) into other-args
 		   finally (return (values string-args other-args))))
 	   (process-args (args)
-	     (multiple-value-bind (pass-by-reference-args other-args)
-		 (extract-pass-by-reference-args args)
-	       (multiple-value-bind (string-args other-args)
-		   (extract-string-args other-args)
+	     (multiple-value-bind (string-args other-args)
+		 (extract-string-args args)
+	       (multiple-value-bind (pass-by-reference-args other-args)
+		   (extract-pass-by-reference-args other-args)
+		 ;; other-args now contain all immediate values
 		 (values other-args pass-by-reference-args string-args)))))
     (multiple-value-bind (lisp-name foreign-name options)
 	(cffi::parse-name-and-options name-and-options)
@@ -171,10 +183,17 @@
 	    (labels ((build-body-with-foreign-objects-decls (&rest body)
 		       `(cffi:with-foreign-objects ,temp-bindings
 			  (setf
-			   ,@(loop for binding in immediate-args
-				   for temp-var in temp-arg-names
-				   collect `(cffi:mem-ref ,(cdr temp-var) ',(second binding))
-				   collect `,(first binding)))
+			   ,@(iter (for binding in immediate-args)
+				   (for temp-var in temp-arg-names)
+				   (if (not (member (second binding) '(complex-float complex-double)))
+				       (progn
+					 (collect `(cffi:mem-aref ,(cdr temp-var) ',(second binding)))
+					 (collect `,(first binding)))
+				       (progn
+					 (collect `(cffi:foreign-slot-value ,(cdr temp-var) ',(second binding) 'realpart))
+					 (collect `(realpart ,(first binding)))
+					 (collect `(cffi:foreign-slot-value ,(cdr temp-var) ',(second binding) 'imagpart))
+					 (collect `(imagpart ,(first binding)))))))
 			  (locally ,@body)))
 		     (build-body-with-foreign-strings-decls (&rest body)
 		       `(cffi:with-foreign-strings ,temp-string-bindings
@@ -189,13 +208,8 @@
 			       collect (first arg)))
 		     (extract-array-bindings (args)
 		       (loop for (var-name var-type) in args
-			     if (let ((parsed-type (type-of (cffi::parse-type var-type))))
-				  (or (and (listp var-type)
-					   (eq (first var-type) :array))
-				      (and (or (eq parsed-type 'cffi::foreign-typedef)
-					       (eq parsed-type 'cffi::enhanced-typedef))
-					   (eq (type-of (cffi::actual-type (cffi::parse-type var-type)))
-					       'cffi::foreign-array-type))))
+			     if (let ((var-type (ensure-list var-type)))
+				  (eq (first var-type) :array))
 			       collect (list var-name var-type) into array-args
 			     else
 			       collect (list var-name var-type) into other-args
@@ -206,8 +220,13 @@
 								array-args)
 			  ,@body)))
 	      (let* ((array-args (extract-array-bindings args))
-		     (body `(with-safe-foreign-function-call-settings
-			      (,internal-lisp-name ,@(substitute-args-with-temp-names args)))))
+		     (body (with-unique-names (result)
+			     `(with-safe-foreign-function-call-settings
+				(let ((,result (,internal-lisp-name ,@(substitute-args-with-temp-names args))))
+				  ,(if (member return-type '(complex-float complex-double))
+				       `(complex (cffi:foreign-slot-value ,result ',return-type 'realpart)
+						 (cffi:foreign-slot-value ,result ',return-type 'imagpart))
+				       result))))))
 		(when array-args
 		  (setf body (build-new-array-bindings-for-foreign-funcalls array-args body)))
 		(when string-args

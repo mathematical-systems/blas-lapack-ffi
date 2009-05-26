@@ -1,9 +1,11 @@
 (in-package :cl)
 
 (defpackage :msi.ffi-utils
-  (:use :cl :alexandria)
+  (:use :cl :alexandria :iterate)
   (:nicknames :ffi-utils)
-  (:export #:defcfun
+  (:export #:complex-float
+	   #:complex-double
+	   #:defcfun
 	   #:defffun
 	   #:with-safe-foreign-function-call-settings
 	   #:make-static-array
