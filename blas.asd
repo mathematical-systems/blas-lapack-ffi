@@ -3,7 +3,8 @@
 ;;; FIXME:
 
 (eval-when (:compile-toplevel :load-toplevel :execute)
-  (cffi:load-foreign-library "/home/huang/workspace/intel-mkl-wrapper/scratch/lapack_wrapper.so"))
+  (cffi:load-foreign-library "src/lapack_wrapper.so"))
+
 
 (asdf:defsystem blas
   :description "A BLAS binding."
@@ -14,7 +15,13 @@
   ((:module src
 	    :components ((:file "packages")
 			 (:file "ffi-utils")
-			 (:file "blas"))
+			 (:file "blas-lapack-common")
+			 (:file "blas")
+			 (:file "lapack"))
 	    :serial t
 	    )))
+
+
+;;; TODO:
+;;; make customized blas/lapack shared libraries
 
