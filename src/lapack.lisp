@@ -1735,7 +1735,7 @@
   (taup (:array :precision *) :in-out)
   (work (:array :precision *) :in-out)
   (lwork blas-int)
-  (info blas-int :out))) 
+  (info blas-int :out))
 
 ;;; gbbrd
 (deflapack gbbrd (:single :double) :void
@@ -2004,7 +2004,7 @@
   (ldc blas-int)
   (work (:array :precision *) :in-out)
   (lwork blas-int)
-  (info blas-int :out)))
+  (info blas-int :out))
 
 ;;; hetrd
 (deflapack hetrd (:complex-single :complex-double) :void
@@ -2457,7 +2457,7 @@
 	  (t '(:array :precision *))))
   (iwork (:array blas-int *))
   (ifailv (:array blas-int *) :in-out)
-  (info blas-int :out)))
+  (info blas-int :out))
 
 ;;; disna
 (deflapack disna (:single :double) :void
