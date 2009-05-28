@@ -19,6 +19,7 @@
 	   #:+precision-definitions+
 	   #:+matrix-type-definitions+
 	   #:defblas
+	   #:deflapack
 	   ))
 
 (defpackage :msi.blas

@@ -30,8 +30,8 @@
       (:abbrev (:triangular-band-matrix . "TB")))
   :test 'equalp)
 
-;;;; utilities
 
+;;; defblas
 (define-constant +evaluation-form+
     '(if when cond case)
   :test 'equalp)
@@ -77,4 +77,9 @@
 				       return-type)
 				  ,@(subst p :precision args))
 	       collect `(export ',function-name)))))
+
+
+;;; deflapack
+(defmacro deflapack (name precisions return-type &rest args)
+  `(defblas ,name ,precisions ,return-type ,@args))
 

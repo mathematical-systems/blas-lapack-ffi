@@ -143,12 +143,12 @@
 	     ;; out param has the form: (var-name var-type :out)
 	     ;; e.g. (alpha :double :out)
 	     (loop for arg in args
-		   if (eq (car (last arg)) :out)
+		   if (member (car (last arg)) '(:out :in-out))
 		     collect arg into out-params
 		     and 
 		       collect (butlast arg) into cffi-params
 		   else
-		     collect arg into cffi-params
+		     collect (list (first arg) (second arg)) into cffi-params
 		   finally (return (values out-params cffi-params)))))
     (multiple-value-bind (out-parameters args)
 	(find-and-remove-all-out-parameters args)
@@ -272,7 +272,7 @@
 						  `(,result)
 						  `(,(build-foreign-immediate-values-to-lisp-form result return-type))))
 					  ,@(loop for (var-name var-type out) in out-parameters
-						  do (assert (eq out :out))
+						  do (assert (member out '(:out :in-out)))
 						  if (not (pointer-type-p var-type))
 						    collect (build-foreign-immediate-values-to-lisp-form
 							     (or (cdr (assoc var-name temp-arg-names))

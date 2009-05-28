@@ -25,7 +25,7 @@
   (a :precision)
   (x (:array :precision *))
   (incx blas-int)
-  (y (:array :precision *) :out)
+  (y (:array :precision *) :in-out)
   (incy blas-int))
 
 ;;; copy
@@ -33,7 +33,7 @@
   (n blas-int)
   (x (:array :precision *))
   (incx blas-int)
-  (y (:array :precision *) :out)
+  (y (:array :precision *) :in-out)
   (incy blas-int))
 
 ;;; dot
@@ -95,9 +95,9 @@
 ;;; rot
 (defblas rot (:single :double) :void
   (n blas-int)
-  (x (:array :precision *) :out)
+  (x (:array :precision *) :in-out)
   (incx blas-int)
-  (y (:array :precision *) :out)
+  (y (:array :precision *) :in-out)
   (incy blas-int)
   (c :precision)
   (s :precision))
@@ -105,9 +105,9 @@
 ;; FIXME: cause SBCL to crash
 (defffun csrot :void
   (n blas-int)
-  (x (:array complex-float *) :out)
+  (x (:array complex-float *) :in-out)
   (incx blas-int)
-  (y (:array complex-float *) :out)
+  (y (:array complex-float *) :in-out)
   (incy blas-int)
   (c :float)
   (s :float))
@@ -115,34 +115,34 @@
 ;; FIXME: cause SBCL to crash
 (defffun zdrot :void
   (n blas-int)
-  (x (:array complex-double *) :out)
+  (x (:array complex-double *) :in-out)
   (incx blas-int)
-  (y (:array complex-double *) :out)
+  (y (:array complex-double *) :in-out)
   (incy blas-int)
   (c :double)
   (s :double))
 
 ;;; rotg
 (defblas rotg (:single :double :complex-single :complex-double) :void
-  (a :precision :out)
-  (b :precision :out)
+  (a :precision :in-out)
+  (b :precision :in-out)
   (c :precision :out)
   (d :precision :out))
 
 ;;; rotm
 (defblas rotm (:single :double) :void
   (n blas-int)
-  (x (:array :precision *) :out)
+  (x (:array :precision *) :in-out)
   (incx blas-int)
-  (y (:array :precision *) :out)
+  (y (:array :precision *) :in-out)
   (incy blas-int)
   (param (:array :precision 5)))
 
 ;;; rotmg
 (defblas rotmg (:single :double) :void
-  (d1 :precision :out)
-  (d2 :precision :out)
-  (x1 :precision :out)
+  (d1 :precision :in-out)
+  (d2 :precision :in-out)
+  (x1 :precision :in-out)
   (y1 :precision)
   (param (:array :precision 5) :out))
 
@@ -150,15 +150,15 @@
 (defblas scal (:single :double :complex-single :complex-double) :void
   (n blas-int)
   (a :precision)
-  (x (:array :precision *) :out)
+  (x (:array :precision *) :in-out)
   (incx blas-int))
 
 ;;; swap
 (defblas swap (:single :double :complex-single :complex-double) :void
   (n blas-int)
-  (x (:array :precision *) :out)
+  (x (:array :precision *) :in-out)
   (incx blas-int)
-  (y (:array :precision *) :out)
+  (y (:array :precision *) :in-out)
   (incy blas-int))
 
 ;;; i?amax
@@ -240,7 +240,7 @@
   (x :precision)
   (incx blas-int)
   (beta :precision)
-  (y (:array :precision *) :out)
+  (y (:array :precision *) :in-out)
   (incy blas-int))
 
 ;;; gemv
@@ -254,7 +254,7 @@
   (x :precision)
   (incx blas-int)
   (beta :precision)
-  (y (:array :precision *))
+  (y (:array :precision *) :in-out)
   (incy blas-int))
 
 ;;; ger
@@ -266,7 +266,7 @@
   (incx blas-int)
   (y (:array :precision *))
   (incy blas-int)
-  (a (:array :precision * *))
+  (a (:array :precision * *) :in-out)
   (lda blas-int))
 
 ;;; gerc
@@ -278,7 +278,7 @@
   (incx blas-int)
   (y (:array :precision *))
   (incy blas-int)
-  (a (:array :precision * *))
+  (a (:array :precision * *) :in-out)
   (lda blas-int))
 
 ;;; geru
@@ -290,7 +290,7 @@
   (incx blas-int)
   (y (:array :precision *))
   (incy blas-int)
-  (a (:array :precision * *))
+  (a (:array :precision * *) :in-out)
   (lda blas-int))
 
 ;;; hbmv
@@ -304,7 +304,7 @@
   (x (:array :precision *))
   (incx blas-int)
   (beta :precision)
-  (y (:array :precision *))
+  (y (:array :precision *) :in-out)
   (incy blas-int))
 
 ;;; hemv
@@ -318,7 +318,7 @@
   (x (:array :precision *))
   (incx blas-int)
   (beta :precision)
-  (y (:array :precision *))
+  (y (:array :precision *) :in-out)
   (incy blas-int))
 
 ;;; her
@@ -330,7 +330,7 @@
 	   (:complex-double :double)))
   (x (:array :precision *))
   (incx blas-int)
-  (a (:array :precision * *))
+  (a (:array :precision * *) :in-out)
   (lda blas-int))
 
 ;;; her2
@@ -342,7 +342,7 @@
   (incx blas-int)
   (y (:array :precision *))
   (incy blas-int)
-  (a (:array :precision * *))
+  (a (:array :precision * *) :in-out)
   (lda blas-int))
 
 ;;; hpmv
@@ -354,7 +354,7 @@
   (x (:array :precision *))
   (incx blas-int)
   (beta :precision)
-  (y (:array :precision *))
+  (y (:array :precision *) :in-out)
   (incy blas-int))
 
 ;;; hpr
@@ -366,7 +366,7 @@
 	   (:complex-double :double)))
   (x (:array :precision *))
   (incx blas-int)
-  (ap (:array :precision *)))
+  (ap (:array :precision *) :in-out))
 
 ;;; hpr2
 (defblas hpr2 (:complex-single :complex-double) :void
@@ -377,7 +377,7 @@
   (incx blas-int)
   (y (:array :precision *))
   (incy blas-int)
-  (ap (:array :precision *)))
+  (ap (:array :precision *) :in-out))
 
 ;;; sbmv
 (defblas sbmv (:single :double) :void
@@ -390,7 +390,7 @@
   (x (:array :precision *))
   (incx blas-int)
   (beta :precision)
-  (y (:array :precision *))
+  (y (:array :precision *) :in-out)
   (incy blas-int))
 
 ;;; spmv
@@ -402,7 +402,7 @@
   (x (:array :precision *))
   (incx blas-int)
   (beta :precision)
-  (y (:array :precision *))
+  (y (:array :precision *) :in-out)
   (incy blas-int))
 
 ;;; spr
@@ -412,7 +412,7 @@
   (alpha :precision)
   (x (:array :precision *))
   (incx blas-int)
-  (ap (:array :precision *)))
+  (ap (:array :precision *) :in-out))
 
 ;;; spr2
 (defblas spr2 (:single :double) :void
@@ -423,7 +423,7 @@
   (incx blas-int)
   (y (:array :precision *))
   (incy blas-int)
-  (ap (:array :precision *)))
+  (ap (:array :precision *) :in-out))
 
 ;;; symv
 (defblas symv (:single :double) :void
@@ -435,7 +435,7 @@
   (x (:array :precision *))
   (incx blas-int)
   (beta :precision)
-  (y (:array :precision *))
+  (y (:array :precision *) :in-out)
   (incy blas-int))
 
 ;;; syr
@@ -445,7 +445,7 @@
   (alpha :precision)
   (x (:array :precision *))
   (incx blas-int)
-  (a (:array :precision * *))
+  (a (:array :precision * *) :in-out)
   (lda blas-int))
 
 ;;; syr2
@@ -457,7 +457,7 @@
   (incx blas-int)
   (y (:array :precision *))
   (incy blas-int)
-  (a (:array :precision *))
+  (a (:array :precision *) :in-out)
   (lda blas-int))
 
 ;;; tbmv
@@ -469,7 +469,7 @@
   (k blas-int)
   (a (:array :precision * *))
   (lda blas-int)
-  (x (:array :precision *))
+  (x (:array :precision *) :in-out)
   (incx blas-int))
 
 ;;; tbsv
@@ -481,7 +481,7 @@
   (k blas-int)
   (a (:array :precision * *))
   (lda blas-int)
-  (x (:array :precision *))
+  (x (:array :precision *) :in-out)
   (incx blas-int))
 
 ;;; tpmv
@@ -491,7 +491,7 @@
   (diag :string)
   (n blas-int)
   (ap (:array :precision *))
-  (x (:array :precision *))
+  (x (:array :precision *) :in-out)
   (incx blas-int))
 
 ;;; tpsv
@@ -501,7 +501,7 @@
   (diag :string)
   (n blas-int)
   (ap (:array :precision *))
-  (x (:array :precision *))
+  (x (:array :precision *) :in-out)
   (incx blas-int))
 
 ;;; trmv
@@ -512,7 +512,7 @@
   (n blas-int)
   (a (:array :precision * *))
   (lda blas-int)
-  (x (:array :precision *))
+  (x (:array :precision *) :in-out)
   (incx blas-int))
 
 ;;; trsv
@@ -523,7 +523,7 @@
   (n blas-int)
   (a (:array :precision * *))
   (lda blas-int)
-  (x (:array :precision *))
+  (x (:array :precision *) :in-out)
   (incx blas-int))
 
 
@@ -543,7 +543,7 @@
   (b (:array :precision * *))
   (ldb blas-int)
   (beta :precision)
-  (c (:array :precision * *))
+  (c (:array :precision * *) :in-out)
   (ldc blas-int))
 
 ;;; hemm
@@ -558,7 +558,7 @@
   (b (:array :precision * *))
   (ldb blas-int)
   (beta :precision)
-  (c (:array :precision * *))
+  (c (:array :precision * *) :in-out)
   (ldc blas-int))
 
 ;;; herk
@@ -575,7 +575,7 @@
   (beta (case :precision
 	  (:complex-single :single)
 	  (:complex-double :double)))
-  (c (:array :precision * *))
+  (c (:array :precision * *) :in-out)
   (ldc blas-int))
 
 ;;; her2k
@@ -590,7 +590,7 @@
   (beta :precision)
   (b (:array :precision * *))
   (ldb blas-int)
-  (c (:array :precision * *))
+  (c (:array :precision * *) :in-out)
   (ldc blas-int))
 
 ;;; symm
@@ -605,7 +605,7 @@
   (b (:array :precision * *))
   (ldb blas-int)
   (beta :precision)
-  (c (:array :precision * *))
+  (c (:array :precision * *) :in-out)
   (ldc blas-int))
 
 ;;; syrk
@@ -618,7 +618,7 @@
   (a (:array :precision * *))
   (lda blas-int)
   (beta :precision)
-  (c (:array :precision * *))
+  (c (:array :precision * *) :in-out)
   (ldc blas-int))
 
 ;;; syrk2
@@ -633,7 +633,7 @@
   (b (:array :precision * *))
   (ldb blas-int)
   (beta :precision)
-  (c (:array :precision * *))
+  (c (:array :precision * *) :in-out)
   (ldc blas-int))
 
 ;;; trmm
@@ -647,7 +647,7 @@
   (alpha :precision)
   (a (:array :precision * *))
   (lda blas-int)
-  (b (:array :precision * *))
+  (b (:array :precision * *) :in-out)
   (ldb blas-int))
 
 ;;; trsm
@@ -661,7 +661,6 @@
   (alpha :precision)
   (a (:array :precision * *))
   (lda blas-int)
-  (b (:array :precision * *))
+  (b (:array :precision * *) :in-out)
   (ldb blas-int))
-
 

@@ -1,9 +1,9 @@
 ;;;; TODO: add copyright and license
 
-;;; FIXME:
-
+;;; TODO: make customized blas/lapack shared libraries
 (eval-when (:compile-toplevel :load-toplevel :execute)
-  (cffi:load-foreign-library "src/lapack_wrapper.so"))
+  (cffi:load-foreign-library
+   (merge-pathnames "src/lapack_wrapper.so" *load-truename*)))
 
 
 (asdf:defsystem blas
@@ -14,14 +14,9 @@
   :components
   ((:module src
 	    :components ((:file "packages")
-			 (:file "ffi-utils")
-			 (:file "blas-lapack-common")
-			 (:file "blas")
-			 (:file "lapack"))
+			 (:file "ffi-utils" :depends-on ("packages"))
+			 (:file "blas-lapack-common" :depends-on ("ffi-utils"))
+			 (:file "blas" :depends-on ("blas-lapack-common")))
 	    :serial t
 	    )))
-
-
-;;; TODO:
-;;; make customized blas/lapack shared libraries
 
