@@ -13,11 +13,13 @@
   (n blas-int)
   (x (:array complex-float *))
   (incx blas-int))
+(export 'scasum)
 
 (defffun dzasum :double
   (n blas-int)
   (x (:array complex-double *))
   (incx blas-int))
+(export 'dzasum)
 
 ;;; axpy
 (defblas axpy (:single :double :complex-single :complex-double) :void
@@ -52,6 +54,7 @@
   (incx blas-int)
   (sy (:array :float *))
   (incy blas-int))
+(export 'sdsdot)
 
 (defffun dsdot :double
   (n blas-int)
@@ -59,6 +62,7 @@
   (incx blas-int)
   (sy (:array :float *))
   (incy blas-int))
+(export 'dsdot)
 
 ;;; dotc
 (defblas dotc (:complex-single :complex-double) :precision
@@ -86,11 +90,13 @@
   (n blas-int)
   (x (:array complex-float *))
   (incx blas-int))
+(export 'scnrm2)
 
 (defffun dznrm2 :double
   (n blas-int)
   (x (:array complex-double *))
   (incx blas-int))
+(export 'dznrm2)
 
 ;;; rot
 (defblas rot (:single :double) :void
@@ -111,6 +117,7 @@
   (incy blas-int)
   (c :float)
   (s :float))
+(export 'csrot)
 
 ;; FIXME: cause SBCL to crash
 (defffun zdrot :void
@@ -121,6 +128,7 @@
   (incy blas-int)
   (c :double)
   (s :double))
+(export 'zdrot)
 
 ;;; rotg
 (defblas rotg (:single :double :complex-single :complex-double) :void

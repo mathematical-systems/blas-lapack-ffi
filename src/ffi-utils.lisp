@@ -12,7 +12,7 @@
 
 
 ;;; FUNCTION: make-static-array
-(defun make-static-array (dimensions &key element-type initial-element initial-contents)
+(defun make-static-array (dimensions &key element-type initial-element initial-contents (warning t))
   #+allegro
   (apply #'make-array
 	 `(,dimensions
@@ -22,7 +22,8 @@
 	   :allocation :static-reclaimable))
   #+sbcl
   (progn
-    (warn "SBCL does not support static array currently. Use them with macro with-arrays-as-foreign-arrays and turn of GC during foreign funcalls (e.g. sb-sys:without-gcing).")
+    (when warning
+      (warn "SBCL does not support static array currently. Use them with macro with-arrays-as-foreign-arrays and turn of GC during foreign funcalls (e.g. sb-sys:without-gcing)."))
     (apply #'make-array
 	   `(,dimensions
 	     :element-type ,element-type
@@ -260,26 +261,24 @@
 		  (let* ((array-args (extract-array-bindings args))
 			 (body (with-unique-names (result)
 				 `(with-safe-foreign-function-call-settings
-				      ;; deal with the return value if it's a complex-number
-				      ;; also return out params as multiple values
-				      ;; don't return nil if the return type of the function is :void
-				      (let ((,result (,internal-lisp-name ,@(substitute-args-with-temp-names args))))
-					(declare (ignorable ,result))
-					(values
-					  ,@(unless (eq return-type :void)
-					      (if (or (string-type-p return-type)
-						      (not (pointer-type-p return-type)))
-						  `(,result)
-						  `(,(build-foreign-immediate-values-to-lisp-form result return-type))))
-					  ,@(loop for (var-name var-type out) in out-parameters
-						  do (assert (member out '(:out :in-out)))
-						  if (not (pointer-type-p var-type))
-						    collect (build-foreign-immediate-values-to-lisp-form
-							     (or (cdr (assoc var-name temp-arg-names))
-								 (cdr (assoc var-name temp-string-arg-names)))
-								  var-type)
-						  else
-						    collect var-name)))))))
+				    ;; deal with the return value if it's a complex-number
+				    ;; also return out params as multiple values
+				    ;; don't return nil if the return type of the function is :void
+				    (let ((,result (,internal-lisp-name ,@(substitute-args-with-temp-names args))))
+				      (declare (ignorable ,result))
+				      (values
+					,@(unless (eq return-type :void)
+					    (if (or (string-type-p return-type)
+						    (not (pointer-type-p return-type)))
+						`(,result)
+						`(,(build-foreign-immediate-values-to-lisp-form result return-type))))
+					,@(loop for (var-name var-type out) in out-parameters
+						do (assert (member out '(:out :in-out)))
+						if (not (pointer-type-p var-type))
+						  collect (build-foreign-immediate-values-to-lisp-form
+							   (or (cdr (assoc var-name temp-arg-names))
+							       (cdr (assoc var-name temp-string-arg-names)))
+								var-type))))))))
 		    (when array-args
 		      (setf body (build-new-array-bindings-for-foreign-funcalls array-args body)))
 		    (when string-args
