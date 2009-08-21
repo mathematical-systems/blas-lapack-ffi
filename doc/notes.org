@@ -2,3 +2,27 @@
 #+STARTUP: hidestars
 #+STARTUP: logdone
 
+* TODO clean-up defffun
+** TODO no need to pass out params in inputs unless it's an array
+** TODO don't return array as output
+
+* TODO create mkl customized library
+
+* TODO add more blas test cases
+
+* TODO write documentations
+
+* TODO reduce ffi overhead
+
+* TODO create webpage for testing
+
+* TODO create array pool
+
+
+
+* Caveats
+- blas-int can be either :int32 or int64 (only in mkl)
+- pass string instead of character to :char args
+- 'ssecnd' instead of 'second'
+- gees, geesx, gges, ggesx 
+

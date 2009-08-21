@@ -4,7 +4,7 @@
   :description "A LAPACK binding."
   :author "MSI"
   :version "0.1"
-  :depends-on (:alexandria :cffi :iterate :blas)
+  :depends-on (:blas)
   :components
   ((:module src
 	    :components ((:file "lapack"))

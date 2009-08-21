@@ -4,49 +4,49 @@
 (in-package :msi.blas.test)
 
 ;;; utility functions
-(labels ((one-value (element-type rmax rmin)
-	   (cond ((member element-type '(single-float double-float integer fixnum))
-		  (coerce (+ rmin (random (- rmax rmin))) element-type))
-		 ((and (listp element-type)
-		       (eq (first element-type) 'complex))
-		  (complex (coerce (+ rmin (random (- rmax rmin))) (second element-type))
-			   (coerce (+ rmin (random (- rmax rmin))) (second element-type))))
-		 (t
-		  (error "element-type (~a) not recognized." element-type)))))
+(defun one-value (element-type rmax rmin)
+  (cond ((member element-type '(single-float double-float integer fixnum))
+	 (coerce (+ rmin (random (- rmax rmin))) element-type))
+	((and (listp element-type)
+	      (eq (first element-type) 'complex))
+	 (complex (coerce (+ rmin (random (- rmax rmin))) (second element-type))
+		  (coerce (+ rmin (random (- rmax rmin))) (second element-type))))
+	(t
+	 (error "element-type (~a) not recognized." element-type))))
 
-  ;; make-random-array
-  (defun make-random-array (dimensions
-			    &key
-			    (element-type 'double-float)
-			    (rmax 100)
-			    (rmin 0))
-    (let* ((arr (make-static-array dimensions :element-type element-type))
-	   (total-size (array-total-size arr)))
-      (loop for i fixnum below total-size
-	    do (setf (row-major-aref arr i) (one-value element-type rmax rmin)))
-      arr))
+;; make-random-array
+(defun make-random-array (dimensions
+			  &key
+			  (element-type 'double-float)
+			  (rmax 100)
+			  (rmin 0))
+  (let* ((arr (make-static-array dimensions :element-type element-type))
+	 (total-size (array-total-size arr)))
+    (loop for i fixnum below total-size
+	  do (setf (row-major-aref arr i) (one-value element-type rmax rmin)))
+    arr))
 
-  ;; make-random-symmetric-matrix
-  (defun make-random-symmetric-matrix (n &key
-					 (element-type 'double-float)
-					 (rmax 100)
-					 (rmin 0))
-    (let ((a (make-static-array (list n n) :element-type element-type)))
-      (loop for i fixnum from 0 to (- n 1) do
-	(loop for j fixnum from i to (- n 1) do
-	  (setf (aref a i j) (one-value element-type rmax rmin))
-	  (unless (= i j)
-	    (setf (aref a j i) (aref a i j)))))
-      a))
+;; make-random-symmetric-matrix
+(defun make-random-symmetric-matrix (n &key
+				     (element-type 'double-float)
+				     (rmax 100)
+				     (rmin 0))
+  (let ((a (make-static-array (list n n) :element-type element-type)))
+    (loop for i fixnum from 0 to (- n 1) do
+      (loop for j fixnum from i to (- n 1) do
+	(setf (aref a i j) (one-value element-type rmax rmin))
+	(unless (= i j)
+	  (setf (aref a j i) (aref a i j)))))
+    a))
 
-  ;; setup-array
-  (defun setup-array (array &key (step 1) (rstart 0) (rstep 1))
-    (loop for i fixnum below (array-total-size array) by step
-	  do (progn
-	       (setf (row-major-aref array i)
-		     (coerce rstart (array-element-type array)))
-	       (incf rstart rstep)))
-    array))
+;; setup-array
+(defun setup-array (array &key (step 1) (rstart 0) (rstep 1))
+  (loop for i fixnum below (array-total-size array) by step
+	do (progn
+	     (setf (row-major-aref array i)
+		   (coerce rstart (array-element-type array)))
+	     (incf rstart rstep)))
+  array)
 
 ;;; data
 (defparameter *sx10* (setup-array (make-static-array 10 :element-type 'single-float :warning nil)))
