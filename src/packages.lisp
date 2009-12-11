@@ -1,7 +1,7 @@
 (in-package :cl)
 
 (defpackage :msi.ffi-utils
-  (:use :cl :alexandria :iterate)
+  (:use :cl :alexandria)
   (:nicknames :ffi-utils)
   (:export #:complex-float
 	   #:complex-double

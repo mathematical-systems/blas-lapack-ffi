@@ -23,7 +23,7 @@
   #+sbcl
   (progn
     (eval-when (:compile-toplevel)
-      (warn 'style-warning "SBCL does not support static array currently. Use them with macro with-arrays-as-foreign-arrays and turn of GC during foreign funcalls (e.g. sb-sys:without-gcing).")) 
+      (warn "SBCL does not support static array currently. Use them with macro with-arrays-as-foreign-arrays and turn of GC during foreign funcalls (e.g. sb-sys:without-gcing).")) 
     `(make-array
       ,@`(,dimensions
 	  :element-type ,element-type
@@ -43,7 +43,8 @@
 ;;; TODO: try to remove without-interrupts
 (defmacro with-safe-foreign-function-call-settings (&body body)
   #+(and allegro smp-macros)
-  `(excl:with-delayed-interrupts ,@body)
+  `(excl:with-delayed-interrupts
+     ,@body)
   #+(and allegro (not smp-macros))
   `(excl:without-interrupts ,@body)
   #+sbcl
@@ -56,38 +57,55 @@
 
 
 ;;; MACRO: with-arrays-as-foreign-arrays
+;; array-bindings ::= (pointer-var lisp-var)*
 (defmacro with-arrays-as-foreign-arrays ((&rest array-bindings) &body body)
   (declare (ignorable array-bindings))
-  #+(and allegro smp-macros)
-  `(excl:with-pinned-objects ,array-bindings ,@body) 
-  #+(and allegro (not smp-macros))
-  `(locally ,@body) 
-  #+sbcl
-  (cond (array-bindings
-	 `(sb-sys:with-pinned-objects ,(mapcar #'second array-bindings)
-	    (let ,(mapcar (lambda (array-binding)
-			    `(,(first array-binding)
-			       (sb-sys:vector-sap (SB-KERNEL:%WITH-ARRAY-DATA ,(second array-binding) 0 0))))
-		   array-bindings)
-	      ,@body)))
-	(t `(locally ,@body)))
-  #+lispworks
-  (labels ((build-exp (array-bindings &rest body)
-	     (cond (array-bindings
-		    `(fli:with-dynamic-lisp-array-pointer ,(first array-bindings)
-		       ,(apply #'build-exp (rest array-bindings) body)))
-		   (t`(locally ,@body)))))
-    (apply #'build-exp array-bindings body))
-  )
+  (cond ((null array-bindings)
+         `(locally ,@body))
+        (t 
+         #+(and allegro smp-macros)
+         ;; FIXME: currently there's no way to ensure the object won't
+         ;; be moved in SMP allegro.
+         ;; 
+         ;; (warn "Currently SMP-enabled AllegroCL cannot forbid GC so~
+         ;; it's not safe. You must assure that the arrays are allocated~
+         ;; in the static space.")
+         `(let ,(mapcar
+                 (lambda (array-binding)
+                   `(,(first array-binding) ,(second array-binding)))
+                 array-bindings)
+            ,@body) 
+         #+(and allegro (not smp-macros))
+         ;; NOTE: with-safe-foreign-function-call-settings already has
+         ;; without-interrupts, so no special treatment is needed here
+         `(let ,(mapcar
+                 (lambda (array-binding)
+                   `(,(first array-binding) ,(second array-binding)))
+                 array-bindings)
+            ,@body) 
+         #+sbcl
+         `(sb-sys:with-pinned-objects ,(mapcar #'second array-bindings)
+            (let ,(mapcar (lambda (array-binding)
+                            `(,(first array-binding)
+                               (sb-sys:vector-sap (SB-KERNEL:%WITH-ARRAY-DATA ,(second array-binding) 0 0))))
+                   array-bindings)
+              ,@body))
+         #+lispworks
+         ;; NOTE: with-safe-foreign-function-call-settings already has
+         ;; without-interrupts, so no special treatment is needed here
+         (labels ((build-exp (array-bindings &rest body)
+                    (cond (array-bindings
+                           `(fli:with-dynamic-lisp-array-pointer ,(first array-bindings)
+                              ,(apply #'build-exp (rest array-bindings) body)))
+                          (t`(locally ,@body)))))
+           (apply #'build-exp array-bindings body)))))
 
 
 
-;;; MACRO: defffun for fortran calling convention
-
-;; Every non-array arguments will be passed by reference
+;;; Type specifier for fortran types
 
 ;; Array type specifier: (array <element-type> *...)
-;; String type specifier: :char or :string
+;; String type specifier: :string
 ;; Complex type specifier: complex-float complex-double
 
 ;; NOTE: The function defined with defffun will return all the
@@ -95,11 +113,14 @@
 ;; first is the return value. If it's a fortran subroutine which means
 ;; the return type is :void, it may not return any value.
 
+(defun make-arg (var-name var-type &optional (var-mode :in))
+  (list var-name var-type (or var-mode :in)))
+
 ;;; helper functions
 (defun string-type-p (var-type)
-  ;; a string var has type (or :char :string)
+  ;; a string var has type :string
   (assert (or (symbolp var-type) (listp var-type)))
-  (member var-type '(:char :string)))
+  (member var-type '(:string)))
 
 (defun complex-type-p (var-type)
   (assert (or (symbolp var-type) (listp var-type)))
@@ -110,182 +131,262 @@
   (assert (or (symbolp var-type) (listp var-type)))
   (eq (first (ensure-list var-type)) :array))
 
+
+;;; The following function is for distinguish types with different
+;;; ways of handling. There are basically 3 types:
+
+;; 1) value-type args (char, int, float, double, complex, ...)
+;; 2) pointer-type args (array, ...)
+;; 3) string args (string will be converted automatically)
+
+;; In fortran ABI, everything is a reference, so we need to pass
+;; value-type args by reference. Pointer and string args are
+;; unchanged.
+
 (defun pointer-type-p (var-type)
-  ;; Complex types are the special cases since it's defined as c structs.
-  ;; String values will be returned so not a pointer type here.
   (assert (or (symbolp var-type) (listp var-type)))
   (and (not (string-type-p var-type))
        (not (member var-type '(complex-float complex-double)))
-       ;; (:array ...) will be canonicalized to :pointer
        (eq (cffi::canonicalize-foreign-type var-type) :pointer)))
 
 
-(defun separate-items (predicate item-list)
+;;; mode
+(defun in-parameter-p (var-mode)
+  (member var-mode '(:in :in-out)))
+
+(defun out-parameter-p (var-mode)
+  (member var-mode '(:out :in-out)))
+
+;;; Accessor for argument spec
+(defun var-name (arg)
+  (first arg))
+
+(defun var-type (arg)
+  (second arg))
+
+(defun var-mode (arg)
+  (or (third arg) :in))
+
+;;; 
+(defun separate-items (predicate item-list &key key)
   ;; Return: (values filtered-items other-items)
-  (assert (listp item-list))
+  (assert (listp item-list)) 
   (loop for item in item-list
-	if (funcall predicate item)
+        for value = (if key (funcall key item) item)
+	if (funcall predicate value)
 	  collect item into filtered-items
 	else
 	  collect item into other-items
 	finally (return (values filtered-items other-items))))
 
-(defun separate-args-by-type (type-predicate args)
+(defun separate-args (predicate args &key (key #'var-type))
   (assert (listp args))
   (separate-items
    (lambda (arg)
-     (let ((var-type (second arg)))
-       (funcall type-predicate var-type)))
-   args))
+     (funcall predicate arg))
+   args
+   :key key))
 
 (defun extract-string-args (args)
   (assert (listp args))
-  (separate-args-by-type #'string-type-p args))
+  (separate-args #'string-type-p args))
 
 (defun extract-array-bindings (args)
   (assert (listp args))
-  (separate-args-by-type #'array-type-p args))
+  (separate-args #'array-type-p args))
 
 (defun extract-pointer-type-args (args)
   (assert (listp args))
-  (separate-args-by-type #'pointer-type-p args))
+  (separate-args #'pointer-type-p args))
 
-
-(defun build-new-array-bindings-for-foreign-funcalls (array-args &rest body)
-  "rebind X,Y... with (with-arrays-as-foreign-arrays ((X X) (Y Y) ...) body)"
-  `(with-arrays-as-foreign-arrays
-       ,(mapcar (lambda (array-arg)
-		  (list (first array-arg) (first array-arg)))
-		array-args)
-     ,@body))
-
-(defun find-and-remove-all-out-parameters (args)
-  ;; out param has the form: (var-name var-type :out) or (var-name var-type :in-out)
+(defun extract-out-args (args)
   (assert (listp args))
-  (loop for arg in args
-	if (member (car (last arg)) '(:out :in-out))
-	  collect arg into out-params
-	  and 
-	    collect (butlast arg) into rest-params
-	else
-	  collect (list (first arg) (second arg)) into rest-params
-	finally (return (values out-params rest-params))))
+  (separate-args #'out-parameter-p args :key #'var-mode))
 
-;;; defffun
+
+
+;;; MACRO: defffun for fortran calling convention
+
+;; Every non-array arguments will be passed by reference
+
 ;; TODO: reduce overhead
 ;; TODO: test passing structs
 ;; TODO: add type checking
 ;; TODO: add type declarations
+
+;; utilities
+(defun make-low-level-lisp-name (lisp-name)
+  (intern (concatenate 'string "%" (symbol-name lisp-name))))
+
+(defun make-fortran-name (foreign-name)
+  (concatenate 'string foreign-name "_"))
+
+(defun canonicalize-args (args)
+  (assert (every (lambda (a) (>= (length a) 2)) args))
+  (loop for arg in args
+        for var-name = (var-name arg)
+        for var-type = (var-type arg)
+        for var-mode = (or (var-mode arg) :in)
+        collect (list var-name var-type var-mode)))
+
+(defun process-function-name-and-options (name-and-options args)
+  (multiple-value-bind (lisp-name foreign-name options)
+      (cffi::parse-name-and-options name-and-options)
+    (declare (ignorable lisp-name foreign-name options))
+    ;; generate function names
+    (let* ((internal-lisp-name (make-low-level-lisp-name lisp-name))
+           (foreign-name (make-fortran-name foreign-name))
+           (docstring (when (stringp (car args)) (pop args)))
+           (args (canonicalize-args args)))
+      (values lisp-name internal-lisp-name foreign-name docstring args))))
+
+(defun process-args (args)
+  ;; divide args to 3 categories
+  (multiple-value-bind (string-args other-args)
+      (extract-string-args args)
+    (multiple-value-bind (pointer-type-args value-type-args)
+        (extract-pointer-type-args other-args)
+      (values value-type-args pointer-type-args string-args))))
+
+(defun lookup (key map)
+  (typecase map
+    (list (let ((rec (assoc key map)))
+            (if rec
+                (values (cdr rec) t)
+                (values nil nil))))
+    (hash-table (gethash key map))))
+
+;; build string-arg-handling, value-type-arg-handling, array-arg-handling forms
+(defun build-body-with-value-type-args-handling (value-type-args
+                                                 temp-value-type-arg-names
+                                                 temp-value-type-bindings
+                                                 &rest body)
+  `(cffi:with-foreign-objects ,temp-value-type-bindings
+     (setf
+      ,@(loop for binding in value-type-args
+              for temp-var in temp-value-type-arg-names
+              if (not (member (second binding) '(complex-float complex-double)))
+                collect `(cffi:mem-aref ,(cdr temp-var) ',(second binding))
+                and 
+                  collect `,(var-name binding)
+              else    
+                collect `(cffi:foreign-slot-value ,(cdr temp-var) ',(second binding) 'realpart)
+                and
+                  collect `(realpart ,(var-name binding))
+                  and 
+                    collect `(cffi:foreign-slot-value ,(cdr temp-var) ',(second binding) 'imagpart)
+                    and 
+                      collect `(imagpart ,(var-name binding))))
+     (locally ,@body)))
+
+(defun build-body-with-string-args-handling (string-bindings &rest body)
+  `(cffi:with-foreign-strings ,string-bindings
+     ,@body))
+
+(defun build-body-with-array-args-handling (array-args &rest body)
+  `(with-arrays-as-foreign-arrays
+       ,(mapcar (lambda (array-arg)
+                  (list (var-name array-arg) (var-name array-arg)))
+                array-args)
+     ,@body))
+
+(defun substitute-args-with-temp-names (temp-value-type-arg-names
+                                        temp-string-arg-names
+                                        args)
+  (loop for arg in args
+        for var-name = (let ((v-name (lookup (var-name arg) temp-value-type-arg-names))
+                             (s-name (lookup (var-name arg) temp-string-arg-names)))
+                         (assert (not (and v-name s-name)))
+                         (or v-name s-name))
+        if var-name
+          collect var-name
+        else
+          collect (var-name arg)))
+
+(defun build-foreign-values-to-lisp-form (var-name var-type)
+  (cond ((complex-type-p var-type)
+         `(complex (cffi:foreign-slot-value ,var-name ',var-type 'realpart)
+                   (cffi:foreign-slot-value ,var-name ',var-type 'imagpart)))
+        ((string-type-p var-type)
+         `(cffi:foreign-string-to-lisp ,var-name))
+        ((array-type-p var-type)
+         var-name)
+        (t
+         `(cffi:mem-aref ,var-name ',var-type))))
+
 (defmacro defffun (name-and-options return-type &rest args)
   ;; deal with out parameters
-  (multiple-value-bind (out-parameters args)
-      (find-and-remove-all-out-parameters args)
-    ;; pick up immediate args and string args
-    (labels ((process-args (args)
-	       (multiple-value-bind (string-args other-args)
-		   (extract-string-args args)
-		 (multiple-value-bind (pointer-type-args other-args)
-		     (extract-pointer-type-args other-args)
-		   ;; other-args now contain all immediate values
-		   (values other-args pointer-type-args string-args)))))
-      (multiple-value-bind (lisp-name foreign-name options)
-	  (cffi::parse-name-and-options name-and-options)
-	(declare (ignorable lisp-name foreign-name options))
-	;; generate function names
-	(let* ((internal-lisp-name (intern (concatenate 'string "%" (symbol-name lisp-name))))
-	       (foreign-name (concatenate 'string foreign-name "_"))
-	       (docstring (when (stringp (car args)) (pop args))))
-	  (multiple-value-bind (immediate-args pointer-args string-args)
-	      (process-args args)
-	    (assert (and (null (intersection immediate-args pointer-args :key #'first))
-			 (null (intersection immediate-args string-args :key #'first))
-			 (null (intersection pointer-args string-args :key #'first))))
-	    ;; generate new var names and binding forms
-	    (let* ((temp-arg-names (mapcar (lambda (binding)
-					     (cons (first binding) (gensym (symbol-name (first binding)))))
-					   immediate-args))
-		   (temp-bindings (mapcar (lambda (name binding)
-					    `(,(cdr name) ',(second binding)))
-					  temp-arg-names immediate-args))
-		   (temp-string-arg-names (mapcar (lambda (binding)
-						    (cons (first binding) (gensym (symbol-name (first binding)))))
-						  string-args))
-		   (temp-string-bindings (mapcar (lambda (name binding)
-						   (list (cdr name) (first binding)))
-						 temp-string-arg-names string-args)))
-	      ;; build string-handling, immediate-value-handling, array-handling forms
-	      (labels ((build-body-with-foreign-objects-decls (&rest body)
-			 `(cffi:with-foreign-objects ,temp-bindings
-			    (setf
-			     ,@(iter (for binding in immediate-args)
-				     (for temp-var in temp-arg-names)
-				     (if (not (member (second binding) '(complex-float complex-double)))
-					 (progn
-					   (collect `(cffi:mem-aref ,(cdr temp-var) ',(second binding)))
-					   (collect `,(first binding)))
-					 (progn
-					   (collect `(cffi:foreign-slot-value ,(cdr temp-var) ',(second binding) 'realpart))
-					   (collect `(realpart ,(first binding)))
-					   (collect `(cffi:foreign-slot-value ,(cdr temp-var) ',(second binding) 'imagpart))
-					   (collect `(imagpart ,(first binding)))))))
-			    (locally ,@body)))
-		       (build-body-with-foreign-strings-decls (&rest body)
-			 `(cffi:with-foreign-strings ,temp-string-bindings
-			    ,@body)) 
-		       (substitute-args-with-temp-names (args)
-			 (loop for arg in args
-			       for temp-var-name = (or (cdr (assoc (first arg) temp-arg-names))
-						       (cdr (assoc (first arg) temp-string-arg-names)))
-			       if temp-var-name
-				 collect temp-var-name
-			       else
-				 collect (first arg))) 
-		       (build-new-array-bindings-for-foreign-funcalls (array-args &rest body)
-			 `(with-arrays-as-foreign-arrays ,(mapcar (lambda (array-arg)
-								    (list (first array-arg) (first array-arg)))
-								  array-args)
-			    ,@body))
-		       (build-foreign-immediate-values-to-lisp-form (var-name var-type)
-			 (cond ((member var-type '(complex-float complex-double))
-				`(complex (cffi:foreign-slot-value ,var-name ',var-type 'realpart)
-					  (cffi:foreign-slot-value ,var-name ',var-type 'imagpart)))
-			       ((member var-type '(:char :string))
-				`(cffi:foreign-string-to-lisp ,var-name))
-			       (t
-				`(cffi:mem-aref ,var-name ',var-type)))))
-		;; build the body for lisp side
-		(let* ((array-args (extract-array-bindings args))
-		       (body (with-unique-names (result)
-			       `(with-safe-foreign-function-call-settings
-				  ;; deal with the return value if it's a complex-number
-				  ;; also return out params as multiple values
-				  ;; don't return nil if the return type of the function is :void
-				  (let ((,result (,internal-lisp-name ,@(substitute-args-with-temp-names args))))
-				    (declare (ignorable ,result))
-				    (values
-				      ,@(unless (eq return-type :void)
-					  (if (or (string-type-p return-type)
-						  (not (pointer-type-p return-type)))
-					      `(,result)
-					      `(,(build-foreign-immediate-values-to-lisp-form result return-type))))
-				      ,@(loop for (var-name var-type out) in out-parameters
-					      do (assert (member out '(:out :in-out)))
-					      if (not (pointer-type-p var-type))
-						collect (build-foreign-immediate-values-to-lisp-form
-							 (or (cdr (assoc var-name temp-arg-names))
-							     (cdr (assoc var-name temp-string-arg-names)))
-							      var-type))))))))
-		  (when array-args
-		    (setf body (build-new-array-bindings-for-foreign-funcalls array-args body)))
-		  (when string-args
-		    (setf body (build-body-with-foreign-strings-decls body)))
-		  (when immediate-args
-		    (setf body (build-body-with-foreign-objects-decls body)))
-		  ;; the final form
-		  `(progn
-		     (declaim (inline ,internal-lisp-name))
-		     (cffi:defcfun (,internal-lisp-name ,foreign-name) ,return-type
-		       ,@(mapcar (lambda (a) (list (first a) :pointer)) args))
-		     (defun ,lisp-name ,(mapcar #'car args)
-		       ,@(ensure-list docstring)
-		       ,body)))))))))))
+  (multiple-value-bind (lisp-name internal-lisp-name foreign-name docstring args)
+      (process-function-name-and-options name-and-options args)
+    (multiple-value-bind (out-parameters in-parameters)
+        (extract-out-args args)
+      (declare (ignorable in-parameters))
+      (multiple-value-bind (value-type-args pointer-type-args string-args)
+          (process-args args)
+        (assert (and (null (intersection value-type-args pointer-type-args :key #'var-name))
+                     (null (intersection value-type-args string-args :key #'var-name))
+                     (null (intersection pointer-type-args string-args :key #'var-name))))
+        ;; generate new var names and binding forms
+        (let* ((temp-value-type-arg-names (mapcar
+                                           (lambda (binding)
+                                             (let ((name (var-name binding)))
+                                               (cons name (gensym (symbol-name name)))))
+                                           value-type-args))
+               (temp-value-type-bindings (mapcar
+                                          (lambda (name binding)
+                                            `(,(cdr name) ',(var-type binding)))
+                                          temp-value-type-arg-names
+                                          value-type-args))
+               (temp-string-arg-names (mapcar
+                                       (lambda (binding)
+                                         (let ((name (var-name binding)))
+                                           (cons name (gensym (symbol-name name)))))
+                                       string-args))
+               (temp-string-bindings (mapcar
+                                      (lambda (name binding)
+                                        (list (cdr name) (var-name binding)))
+                                      temp-string-arg-names
+                                      string-args))
+               (array-args (extract-array-bindings pointer-type-args)))
+          ;; build the body for lisp side
+          (let* ((body (with-unique-names (result)
+                         ;; deal with the return value if it's a complex-number
+                         ;; also return out params as multiple values
+                         ;; don't return nil if the return type of the function is :void
+                         `(let ((,result (,internal-lisp-name
+                                          ,@(substitute-args-with-temp-names
+                                             temp-value-type-arg-names
+                                             temp-string-arg-names
+                                             args))))
+                            (declare (ignorable ,result))
+                            (values
+                              ,@(unless (eq return-type :void)
+                                  (if (or (string-type-p return-type)
+                                          (not (pointer-type-p return-type)))
+                                      `(,result)
+                                      `(,(build-foreign-values-to-lisp-form result return-type))))
+                              ,@(loop for arg in out-parameters
+                                      collect (build-foreign-values-to-lisp-form
+                                               (or (or (cdr (assoc (var-name arg) temp-value-type-arg-names))
+                                                       (cdr (assoc (var-name arg) temp-string-arg-names)))
+                                                   (var-name arg))
+                                               (var-type arg))))))))
+            (when array-args
+              (setf body (build-body-with-array-args-handling array-args body)))
+            (when string-args
+              (setf body (build-body-with-string-args-handling temp-string-bindings body)))
+            (when value-type-args
+              (setf body (build-body-with-value-type-args-handling
+                          value-type-args
+                          temp-value-type-arg-names
+                          temp-value-type-bindings
+                          body)))
+            ;; the final form
+            `(progn
+               (declaim (inline ,internal-lisp-name))
+               (cffi:defcfun (,internal-lisp-name ,foreign-name) ,return-type
+                 ,@(mapcar (lambda (a) (list (first a) :pointer)) args))
+               (defun ,lisp-name ,(mapcar #'car args)
+                 ,@(ensure-list docstring)
+                 (with-safe-foreign-function-call-settings
+                   ,body)))))))))

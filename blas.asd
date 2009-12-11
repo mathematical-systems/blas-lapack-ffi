@@ -2,8 +2,9 @@
 
 ;;; TODO: make customized blas/lapack shared libraries
 (eval-when (:compile-toplevel :load-toplevel :execute)
-  (require :asdf)
-  (asdf:oos 'asdf:load-op :cffi)
+  (asdf:oos 'asdf:load-op :cffi))
+
+(eval-when (:compile-toplevel :load-toplevel :execute)
   (progn
     (cffi:load-foreign-library
      (merge-pathnames "src/lapack_wrapper.so" *load-truename*))

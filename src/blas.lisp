@@ -1,6 +1,5 @@
 (in-package :msi.blas)
 
-
 ;;;; blas1
 
 ;;; asum

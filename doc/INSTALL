@@ -1,0 +1,24 @@
+* Linux
+
+0. Prerequisite 
+   - asdf (by invoke (require :asdf))
+   - gcc
+   - Intel MKL
+
+1. $ cd src/
+
+2. $ make
+
+It will show something like below
+gcc -shared -fPIC -fomit-frame-pointer -march=core2 -pipe -msse -msse2 -msse3 -msse4.1 -Wall -o lapack_wrapper.so \
+		-L/opt/intel/mkl/10.1.2.024/lib/em64t -lmkl_gf_lp64 \
+		-lmkl_gnu_thread -lmkl_core -lm -lgomp -lgfortran -lpthread \
+		lapack_wrapper.c
+                
+3. (asdf:oos 'asdf:load-op :lapack).
+
+You need to make asdf aware about the .asd files. e.g. Have the
+   blas.asd and lapack.asd symlinked to your current directory
+
+* Windows
+
