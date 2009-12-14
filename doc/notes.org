@@ -2,20 +2,6 @@
 #+STARTUP: hidestars
 #+STARTUP: logdone
 
-* TODO create mkl customized library
-
-* TODO add more blas test cases
-
-* TODO write documentations
-
-* TODO reduce ffi overhead
-
-* TODO create webpage for testing
-
-* TODO create array pool
-
-
-
 * Caveats
 - blas-int can be either :int32 or int64 (only in mkl)
 - pass string instead of character to :char args

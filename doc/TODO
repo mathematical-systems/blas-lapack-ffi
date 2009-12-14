@@ -1,2 +1,20 @@
-* support user-defined types and copy semantics
+-*- mode: org -*-
+
+#+TYP_TODO: TODO TEST WAITING CONFIRM MAYBE NEXT DONE 
+#+STARTUP: hidestars
+#+STARTUP: logdone
+
+* TODO support user-defined types and copy semantics
+
+* TODO create mkl customized library
+
+* TODO add more blas test cases
+
+* TODO write documentations
+
+* TODO reduce ffi overhead
+
+* TODO create webpage for testing
+
+* TODO create array pool
 

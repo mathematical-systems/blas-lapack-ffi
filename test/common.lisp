@@ -132,3 +132,4 @@
         (t
          (cons (mapcar (lambda (x) (or (car x) default)) list-array)
                (transpose-list-array (mapcar #'cdr list-array))))))
+
