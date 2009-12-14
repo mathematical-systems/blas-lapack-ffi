@@ -1,0 +1,48 @@
+[Initial proof-of-concept release
+Luis Oliveira <loliveira@common-lisp.net>**20070706111714] 
+[New approach without external dependencies
+Luis Oliveira <loliveira@common-lisp.net>**20070717025035
+ 
+ - Write a draft SPEC.
+ - Add implementations for allegro, clisp, sbcl, cmucl, corman,
+   lispworks, ecl, and openmcl.
+ - Change licence to MIT.
+ - Use the previous CFFI-based implementation as a test suite.
+] 
+[update spec
+Luis Oliveira <loliveira@common-lisp.net>**20070726170023] 
+[Added x86-64 feature in OpenMCL
+Luis Oliveira <loliveira@common-lisp.net>**20070726170059] 
+[Add SCL support (untested)
+Luis Oliveira <loliveira@common-lisp.net>**20070726170125] 
+[Port trivial-features-tests to windows.
+Luis Oliveira <loliveira@common-lisp.net>**20070728210617] 
+[clisp: don't try to call UNAME when running on windows
+Luis Oliveira <loliveira@common-lisp.net>**20070807034259] 
+[Fix typo in tf-openmcl.lisp
+Luis Oliveira <loliveira@common-lisp.net>**20070807040119] 
+[Update SPEC (mostly fixed wording)
+Luis Oliveira <loliveira@common-lisp.net>**20070820165121] 
+[Major cleanup.
+Luis Oliveira <loliveira@common-lisp.net>**20070823031733
+ 
+ - Get rid of src/common.lisp and the trivial-features package.
+ - Don't try so hard to avoid interning keywords, it's not necessary.
+ - Describe trivial-features properly in the README file.
+ - Add some links to SPEC.
+ - Add TEST-OP operations.
+] 
+[Reword README and SPEC some more.
+Luis Oliveira <loliveira@common-lisp.net>**20070828220732] 
+[Update tf-lispworks.lisp
+Luis Oliveira <loliveira@common-lisp.net>**20070828220809] 
+[TAG 0.1
+Luis Oliveira <loliveira@common-lisp.net>**20070828222043] 
+[TAG 0.1
+Luis Oliveira <loliveira@common-lisp.net>**20070828222236] 
+[Update RELEASE_DIR in release.sh
+Luis Oliveira <loliveira@common-lisp.net>**20070828223509] 
+[Push :LINUX on OpenMCL
+Luis Oliveira <loliveira@common-lisp.net>**20071205231829] 
+[Bump version number in trivial-features.asd
+Luis Oliveira <loliveira@common-lisp.net>**20071205231929] 
