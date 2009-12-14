@@ -1,9 +1,9 @@
 ;;;; TODO: add copyright and license
 
 ;;; TODO: make customized blas/lapack shared libraries
-(cl:eval-when (:compile-toplevel :load-toplevel :execute)
-  (loop for dir in (directory "addons/*/*.asd") do 
-    (pushnew (make-pathname :directory (pathname-directory dir)) asdf:*central-registry* :test 'equal)))
+;; (cl:eval-when (:compile-toplevel :load-toplevel :execute)
+;;   (loop for dir in (directory "addons/*/*.asd") do 
+;;     (pushnew (make-pathname :directory (pathname-directory dir)) asdf:*central-registry* :test 'equal)))
 
 (eval-when (:compile-toplevel :load-toplevel :execute)
   (asdf:oos 'asdf:load-op :cffi))
