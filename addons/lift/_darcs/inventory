@@ -1,0 +1,27 @@
+Starting with tag:
+[TAG version-1.6.1
+Gary King <gwking@metabang.com>**20090127000836] 
+[don't include docs, take two
+Gary King <gwking@metabang.com>**20090127002521] 
+[don't include docs, take three
+Gary King <gwking@metabang.com>**20090127002815] 
+[don't include docs, take four
+Gary King <gwking@metabang.com>**20090127003007] 
+[Reworked the determination of report-pathname.
+Gary King <gwking@metabang.com>**20090307210933] 
+[typo in docstring
+Gary King <gwking@metabang.com>**20090307211121] 
+[pulled ensure-string out into its own function; simplified liftpropos
+Gary King <gwking@metabang.com>**20090307211227] 
+[ensure-same and ensure-different need to raise different conditions on failure
+Gary King <gwking@metabang.com>**20090307211309] 
+[WARNING: simplified ensure-cases to make singleton variable use easier -- incompatible change
+Gary King <gwking@metabang.com>**20090307211343] 
+[be a bit more careful about accumulating test results
+Gary King <gwking@metabang.com>**20090307211502] 
+[catch errors more nicely when reporting
+Gary King <gwking@metabang.com>**20090307211514] 
+[bump version
+Gary King <gwking@metabang.com>**20090307211539] 
+[TAG version-1.7.0
+Gary King <gwking@metabang.com>**20090307211551] 

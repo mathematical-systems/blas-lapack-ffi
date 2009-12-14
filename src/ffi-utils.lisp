@@ -12,7 +12,8 @@
 
 
 ;;; MACRO: make-static-array
-(defmacro make-static-array (dimensions &key element-type initial-element initial-contents)
+(defmacro make-static-array (dimensions &key element-type initial-element initial-contents (warning t))
+  (declare (ignorable warning))
   #+allegro
   `(make-array
     ,@`(,dimensions
@@ -23,7 +24,8 @@
   #+sbcl
   (progn
     (eval-when (:compile-toplevel)
-      (warn "SBCL does not support static array currently. Use them with macro with-arrays-as-foreign-arrays and turn of GC during foreign funcalls (e.g. sb-sys:without-gcing).")) 
+      (when warning
+        (warn "SBCL does not support static array currently. Use them with macro with-arrays-as-foreign-arrays and turn of GC during foreign funcalls (e.g. sb-sys:without-gcing)."))) 
     `(make-array
       ,@`(,dimensions
 	  :element-type ,element-type

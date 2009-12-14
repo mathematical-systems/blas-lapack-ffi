@@ -1,0 +1,1 @@
+addons/lift/lift.asd
