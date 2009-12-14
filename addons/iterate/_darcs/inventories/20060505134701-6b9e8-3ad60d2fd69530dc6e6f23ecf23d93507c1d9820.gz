@@ -1,0 +1,21 @@
+[Initial darcs repo
+attila.lendvai@gmail.com**20060331154800] 
+[Added make-shared-binding
+attila.lendvai@gmail.com**20060331155554] 
+[Added first-iteration-p and first-time-p
+attila.lendvai@gmail.com**20060331155648
+ 
+ Typical use is (if (first-...-p) ...)
+ 
+ first-iteration-p will be t in the first loop while first-time-p will
+ be t when first called, then nil. Hint: first-time-p is useful for
+ the usual comma separated list printing problem.
+] 
+[Added first-time-p and first-iteration-p tests
+attila.lendvai@gmail.com**20060331190728] 
+[Fix doc build, added pdf target
+attila.lendvai@gmail.com**20060331195105] 
+[Renamed doc files and added Boolean Tests subsection
+attila.lendvai@gmail.com**20060331212541] 
+[Added generated pdf manuals to the repo for easier maintenance
+attila.lendvai@gmail.com**20060505134310] 

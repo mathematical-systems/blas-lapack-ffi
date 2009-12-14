@@ -1,0 +1,45 @@
+Starting with tag:
+[TAG 1.4.3
+attila.lendvai@gmail.com**20060505134701] 
+[Added release.sh
+attila.lendvai@gmail.com**20060506155953] 
+[test to detect bug, more than one nil tag in tagbody
+ Henrik Hjelte <henrik@evahjelte.com>**20061025145128] 
+[wrap code in progns, to avoid possiblity of multiple nil tags in tagbody
+ Henrik Hjelte <henrik@evahjelte.com>**20061025145324] 
+[Set *list-end-test* to 'endp instead of 'atom, so (iter (for foo :in something-non-list)) fails instead of silently exists
+attila.lendvai@gmail.com**20070215151652] [Clean up #L stuff, do not leave #L enabled after loading iterate
+attila.lendvai@gmail.com**20070426153431] 
+[add ELSE test cases, remove GNU Arch tag
+Joerg-Cyril Hoehle <hoehle@users.sourceforge.net>**20070503093008] 
+[walk-tagbody must not macroexpand symbol/tags among its statements
+Joerg-Cyril Hoehle <hoehle@users.sourceforge.net>**20070404124132] 
+[walk-tagbody: more testcases
+Joerg-Cyril Hoehle <hoehle@users.sourceforge.net>**20070503095309] 
+[make FOR...IN/ON with dotted lists work like LOOP
+hoehle@users.sourceforge.net**20070503130604
+ More precisely, FOR ON accepts dotted lists, FOR IN errors out.
+ As a result, iterate::*list-end-test* was eliminated.
+ Behaviour is now constant and does not depend on some special variable.
+ Note: Documentation not yet updated, pending move to Texinfo.
+] 
+[Convert manual to Texinfo.
+Luis Oliveira <loliveira@common-lisp.net>**20060713142915] 
+[Fix sharpL reader, add :execute to the eval-when to make (load "iterate" :compiling t) work on clisp
+attila.lendvai@gmail.com**20070506100704] 
+[Renamed back to sharpL-reader
+attila.lendvai@gmail.com**20070506100744] 
+[document *list-end-test* removal in FOR...IN+ON
+Joerg-Cyril Hoehle <hoehle@users.sourceforge.net>**20070525074338] 
+[Use @:, @. and two spaces between sentences
+Joerg-Cyril Hoehle <hoehle@users.sourceforge.net>**20070525080932
+ Move section on predicate (first-time-p) outside of gathering clauses
+ Various typos and some clarifications
+] 
+[fix defmacro-driver example in manual
+Joerg-Cyril Hoehle <hoehle@users.sourceforge.net>**20070525081443] 
+[first-time-p bugfix: return-code :body must return list of forms
+Joerg-Cyril Hoehle <hoehle@users.sourceforge.net>**20070525141533
+ if-first-time not declared obsolete
+ documentation strings for (iter:display-iterate-clauses) complete
+] 

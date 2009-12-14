@@ -1,0 +1,374 @@
+
+New patches:
+
+[unrevert
+anonymous**20070423132759] 
+<
+> {
+hunk ./cffi-examples.asd 1
+-;;;; -*- Mode: lisp; indent-tabs-mode: nil -*-
+-;;;
+-;;; cffi-examples.asd --- ASDF system definition for CFFI examples.
+-;;;
+-;;; Copyright (C) 2005-2006, James Bielman  <jamesjb@jamesjb.com>
+-;;;
+-;;; Permission is hereby granted, free of charge, to any person
+-;;; obtaining a copy of this software and associated documentation
+-;;; files (the "Software"), to deal in the Software without
+-;;; restriction, including without limitation the rights to use, copy,
+-;;; modify, merge, publish, distribute, sublicense, and/or sell copies
+-;;; of the Software, and to permit persons to whom the Software is
+-;;; furnished to do so, subject to the following conditions:
+-;;;
+-;;; The above copyright notice and this permission notice shall be
+-;;; included in all copies or substantial portions of the Software.
+-;;;
+-;;; THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+-;;; EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+-;;; MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+-;;; NONINFRINGEMENT.  IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+-;;; HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+-;;; WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+-;;; OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+-;;; DEALINGS IN THE SOFTWARE.
+-;;;
+-
+-(defpackage #:cffi-examples-system
+-  (:use #:cl #:asdf))
+-(in-package #:cffi-examples-system)
+-
+-(defsystem cffi-examples
+-  :description "CFFI Examples"
+-  :author "James Bielman  <jamesjb@jamesjb.com>"
+-  :components 
+-  ((:module examples
+-    :components
+-    ((:file "examples")
+-     (:file "gethostname")
+-     (:file "gettimeofday"))))
+-  :depends-on (cffi))
+rmfile ./cffi-examples.asd
+hunk ./cffi-tests.asd 1
+-;;;; -*- Mode: lisp; indent-tabs-mode: nil -*-
+-;;;
+-;;; cffi-tests.asd --- ASDF system definition for CFFI unit tests.
+-;;;
+-;;; Copyright (C) 2005-2006, James Bielman  <jamesjb@jamesjb.com>
+-;;;
+-;;; Permission is hereby granted, free of charge, to any person
+-;;; obtaining a copy of this software and associated documentation
+-;;; files (the "Software"), to deal in the Software without
+-;;; restriction, including without limitation the rights to use, copy,
+-;;; modify, merge, publish, distribute, sublicense, and/or sell copies
+-;;; of the Software, and to permit persons to whom the Software is
+-;;; furnished to do so, subject to the following conditions:
+-;;;
+-;;; The above copyright notice and this permission notice shall be
+-;;; included in all copies or substantial portions of the Software.
+-;;;
+-;;; THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+-;;; EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+-;;; MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+-;;; NONINFRINGEMENT.  IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+-;;; HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+-;;; WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+-;;; OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+-;;; DEALINGS IN THE SOFTWARE.
+-;;;
+-
+-(defpackage #:cffi-tests-system
+-  (:use #:cl #:asdf))
+-(in-package #:cffi-tests-system)
+-
+-(defvar *tests-dir* (append (pathname-directory *load-truename*) '("tests")))
+-
+-(defclass c-test-lib (c-source-file)
+-  ())
+-
+-(defmethod perform ((o load-op) (c c-test-lib))
+-  nil)
+-
+-(defmethod perform ((o load-source-op) (c c-test-lib))
+-  nil)
+-
+-(defmethod perform ((o compile-op) (c c-test-lib))
+-  #-(or win32 mswindows)
+-  (unless (zerop (run-shell-command
+-                   #-freebsd "cd ~A; make"
+-                   #+freebsd "cd ~A; gmake"
+-                   (namestring (make-pathname :name nil :type nil
+-                                              :directory *tests-dir*))))
+-    (error 'operation-error :component c :operation o)))
+-
+-;; For the convenience of ECL users.
+-#+ecl (require 'rt)
+-
+-(defsystem cffi-tests
+-  :description "Unit tests for CFFI."
+-  :depends-on (cffi #-ecl rt)
+-  :components
+-  ((:module "tests"
+-    :serial t
+-    :components
+-    ((:c-test-lib "libtest")
+-     (:file "package")
+-     (:file "bindings")
+-     (:file "funcall")
+-     (:file "defcfun")
+-     (:file "callbacks")
+-     (:file "foreign-globals")
+-     (:file "memory")
+-     (:file "struct")
+-     (:file "union")
+-     (:file "enum")
+-     (:file "misc-types")
+-     (:file "misc")))))
+-
+-(defun run-cffi-tests (&key (compiled nil))
+-  (funcall (intern (symbol-name '#:run-cffi-tests) '#:cffi-tests)
+-           :compiled compiled))
+-
+-(defmethod perform ((o test-op) (c (eql (find-system :cffi-tests))))
+-  (unless (and (run-cffi-tests :compiled nil)
+-               (run-cffi-tests :compiled t))
+-    (error "test-op failed.")))
+-
+-;;; vim: ft=lisp et
+rmfile ./cffi-tests.asd
+hunk ./cffi-uffi-compat.asd 1
+-;;;; -*- Mode: lisp; indent-tabs-mode: nil -*-
+-;;;
+-;;; cffi-uffi-compat.asd --- ASDF system definition for CFFI-UFFI-COMPAT.
+-;;;
+-;;; Copyright (C) 2005-2006, James Bielman  <jamesjb@jamesjb.com>
+-;;;
+-;;; Permission is hereby granted, free of charge, to any person
+-;;; obtaining a copy of this software and associated documentation
+-;;; files (the "Software"), to deal in the Software without
+-;;; restriction, including without limitation the rights to use, copy,
+-;;; modify, merge, publish, distribute, sublicense, and/or sell copies
+-;;; of the Software, and to permit persons to whom the Software is
+-;;; furnished to do so, subject to the following conditions:
+-;;;
+-;;; The above copyright notice and this permission notice shall be
+-;;; included in all copies or substantial portions of the Software.
+-;;;
+-;;; THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+-;;; EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+-;;; MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+-;;; NONINFRINGEMENT.  IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+-;;; HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+-;;; WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+-;;; OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+-;;; DEALINGS IN THE SOFTWARE.
+-;;;
+-
+-(defpackage #:cffi-uffi-compat-system
+-  (:use #:cl #:asdf))
+-(in-package #:cffi-uffi-compat-system)
+-
+-(defsystem cffi-uffi-compat
+-  :description "UFFI Compatibility Layer for CFFI"
+-  :author "James Bielman  <jamesjb@jamesjb.com>"
+-  :components
+-  ((:module uffi-compat
+-    :components
+-    ((:file "uffi-compat"))))
+-  :depends-on (cffi))
+-
+-;; vim: ft=lisp et
+rmfile ./cffi-uffi-compat.asd
+hunk ./cffi.asd 1
+-;;;; -*- Mode: lisp; indent-tabs-mode: nil -*-
+-;;;
+-;;; cffi.asd --- ASDF system definition for CFFI.
+-;;;
+-;;; Copyright (C) 2005-2006, James Bielman  <jamesjb@jamesjb.com>
+-;;;
+-;;; Permission is hereby granted, free of charge, to any person
+-;;; obtaining a copy of this software and associated documentation
+-;;; files (the "Software"), to deal in the Software without
+-;;; restriction, including without limitation the rights to use, copy,
+-;;; modify, merge, publish, distribute, sublicense, and/or sell copies
+-;;; of the Software, and to permit persons to whom the Software is
+-;;; furnished to do so, subject to the following conditions:
+-;;;
+-;;; The above copyright notice and this permission notice shall be
+-;;; included in all copies or substantial portions of the Software.
+-;;;
+-;;; THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+-;;; EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+-;;; MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+-;;; NONINFRINGEMENT.  IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+-;;; HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+-;;; WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+-;;; OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+-;;; DEALINGS IN THE SOFTWARE.
+-;;;
+-
+-#-(or openmcl sbcl cmu scl clisp lispworks ecl allegro cormanlisp)
+-(error "Sorry, this Lisp is not yet supported.  Patches welcome!")
+-
+-(defpackage #:cffi-system
+-  (:use #:cl #:asdf))
+-(in-package #:cffi-system)
+-
+-(defsystem cffi
+-  :description "The Common Foreign Function Interface"
+-  :author "James Bielman  <jamesjb@jamesjb.com>"
+-  :version "0.9.2"
+-  :licence "MIT"
+-  :components 
+-  ((:module src
+-    :serial t
+-    :components
+-    ((:file "utils")
+-     (:file "features")
+-     #+openmcl    (:file "cffi-openmcl")
+-     #+sbcl       (:file "cffi-sbcl")
+-     #+cmu        (:file "cffi-cmucl")
+-     #+scl        (:file "cffi-scl")
+-     #+clisp      (:file "cffi-clisp")
+-     #+lispworks  (:file "cffi-lispworks")
+-     #+ecl        (:file "cffi-ecl")
+-     #+allegro    (:file "cffi-allegro")
+-     #+cormanlisp (:file "cffi-corman")
+-     (:file "package")
+-     (:file "libraries")
+-     (:file "early-types")
+-     (:file "types")
+-     (:file "enum")
+-     (:file "strings")
+-     (:file "functions")
+-     (:file "foreign-vars")))))
+-
+-(defmethod perform ((o test-op) (c (eql (find-system :cffi))))
+-  (operate 'asdf:load-op :cffi-tests)
+-  (operate 'asdf:test-op :cffi-tests))
+-
+-;; vim: ft=lisp et
+rmfile ./cffi.asd
+hunk ./uffi-compat/uffi.asd 1
+-;;;; uffi.asd -*- Mode: Lisp -*-
+-
+-(defsystem uffi :depends-on (cffi-uffi-compat))
+rmfile ./uffi-compat/uffi.asd
+}
+
+Context:
+
+[New file: uffi-compat/uffi.asd
+Luis Oliveira <loliveira@common-lisp.net>**20070222005213] 
+[Update TODO list
+Luis Oliveira <loliveira@common-lisp.net>**20070222004917
+ 
+ Removed some stuff that's already been implemented, etc...
+] 
+[Simplify load-foreign-library-error.
+Luis Oliveira <loliveira@common-lisp.net>**20070222000828] 
+[Fix load-foreign-library bug
+Luis Oliveira <loliveira@common-lisp.net>**20070214195457
+ 
+ load-foreign-library wasn't accepting non-symbol library designators
+ correctly. Bug reported by Stelian Ionescu.
+] 
+[Update documentation with stdcall/namespace/close-foreign-library changes
+Luis Oliveira <loliveira@common-lisp.net>**20070214144215] 
+[Fix conflict
+Luis Oliveira <loliveira@common-lisp.net>**20070214132212] 
+[Generate more meaningful errors for invalid enums
+Luis Oliveira <loliveira@common-lisp.net>**20070214125726
+ 
+ Reported by Lars Nostdal.
+] 
+[Remove finalizers. Users can use trivial-garbage instead.
+Luis Oliveira <loliveira@common-lisp.net>**20070214125318] 
+[stdcall, namespaces, close-foreign-library
+Luis Oliveira <loliveira@common-lisp.net>**20070214124058
+ 
+ Three new features:
+   - stdcall (defcfun, foreign-funcall(-pointer), defcallback)
+   - namespaces, associate foreigns vars and functions to a
+     specific library. (CLISP and Lispworks only)
+   - close-foreign-library actually works now.
+ 
+ Backwards incompatible changes:
+   - define-foreign-library's syntax changed slightly, can't
+     load more than one foreign library per define-foreign-library
+     form anymore.
+   - defcvar's syntax changed.
+   - foreign-funcall can't funcall pointers anymore. Use
+     foreign-funcall-pointer for that.
+] 
+[clisp: copy-in/out implementation of with-pointer-to-vector-data
+Luis Oliveira <loliveira@common-lisp.net>**20061220221141
+ 
+ Patch courtesy of Stelian Ionescu.
+ 
+] 
+[Correctly handle duplicate loading of libraries in CMUCL.
+Luis Oliveira <loliveira@common-lisp.net>**20061219194553
+ 
+ Patch courtesy of Stelian Ionescu.
+] 
+[Fix WITH-POINTER-TO-VECTOR-DATA on recent SBCLs
+Luis Oliveira <loliveira@common-lisp.net>**20061208085224
+ 
+ Patch courtesy of Stelian Ionescu.
+] 
+[Bugfixes for ECL/DFFI
+Luis Oliveira <loliveira@common-lisp.net>**20061203032620
+ 
+ Patch courtesy of Juan Jose Garcia-Ripoll.
+] 
+[Fix typo in strings.lisp
+Luis Oliveira <loliveira@common-lisp.net>**20061117033535] 
+[New function: CFFI-SYS:NATIVE-NAMESTRING
+Luis Oliveira <loliveira@common-lisp.net>**20061117033120
+ 
+ - Use it to load foreign libraries. Using plain CL:NAMESTRING was causing
+   trouble with OpenMCL where (namestring #p"foo.bar.baz") returns
+   "foo\\.bar.baz".
+] 
+[CMUCL: pick up new callback trampolines after loading core
+Luis Oliveira <loliveira@common-lisp.net>**20061117032832
+ 
+ Patch courtesy of Bart Botta.
+] 
+[Use ECL's RT.
+Luis Oliveira <loliveira@common-lisp.net>**20061013002817] 
+[Add declarations to cffi-sbcl.lisp
+Luis Oliveira <loliveira@common-lisp.net>**20061012224706
+ 
+ Patch courtesy of Yaroslav Kavenchuk.
+] 
+[ECL port update
+Luis Oliveira <loliveira@common-lisp.net>**20061012220014
+ 
+ - Fixed the port to architectures without dynamical FFI.
+ - Tests with too large number of arguments (> 34) are marked as
+   expected to fail.
+ 
+ Patch courtesy of Juan Jose Garcia-Ripoll.
+] 
+[bindings.lisp: load-directory
+Luis Oliveira <loliveira@common-lisp.net>**20060925141345
+ 
+ - Use pathname-device and pathname-host to more accurately get
+   the current directory on, for example, windows.
+ 
+ Bug report and initial fix by Yaroslav Kavenchuk.
+] 
+[Fixed typo in %callback
+Daniel Dickison <danieldickison@gmail.com>**20060912160327] 
+[uffi-compat: implement missing macro DEF-POINTER-VAR
+Luis Oliveira <loliveira@common-lisp.net>**20060910015547
+ 
+ Reported by Ricardo Alves.
+] 
+[Forgot to increment the version number in the .asd file again.
+Luis Oliveira <loliveira@common-lisp.net>**20060908205602] 
+[TAG 0.9.2
+Luis Oliveira <loliveira@common-lisp.net>**20060908205321] 
+Patch bundle hash:
+9b9354677710651b5d9acc3fc2a38e00c8dbd816
