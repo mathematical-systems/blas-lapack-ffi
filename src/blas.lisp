@@ -258,7 +258,7 @@
   (alpha :precision)
   (a (:array :precision * *))
   (lda blas-int)
-  (x :precision)
+  (x (:array :precision *))
   (incx blas-int)
   (beta :precision)
   (y (:array :precision *) :in-out)

@@ -5607,11 +5607,11 @@
   (rmax :precision :out))
 
 ;;; second
-;;; NOTE: second is CL built-in function so I changed the function name here.
+;;; NOTE: second is CL built-in function so I changed it to ssecnd
 (defffun (ssecnd "second") :float)
 (defffun dsecnd :double)
-(export 'ssecnd)
-(export 'dsecnd)
+(export 'ssecond)
+(export 'dsecond)
 
 
 

@@ -65,9 +65,11 @@
        ,@(loop for p in precisions
 	       for function-name = (symbolicate (getf (cdr (assoc p +precision-definitions+)) :abbrev) name)
 	       do (assert (cffi:foreign-symbol-pointer
-	       		   (concatenate 'string
-	       				(nth-value 1 (cffi::parse-name-and-options function-name))
-	       				"_"))
+                               function-name
+                               ;; (concatenate 'string
+                               ;;      	(nth-value 1 (cffi::parse-name-and-options function-name))
+                               ;;      	"_")
+                               )
 	       		  nil
 	       		  "Cannot resolve foreign function symbol (~a)"
 	       		  (nth-value 1 (cffi::parse-name-and-options function-name)))

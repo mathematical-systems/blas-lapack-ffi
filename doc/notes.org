@@ -4,7 +4,7 @@
 
 * Caveats
 - blas-int can be either :int32 or int64 (only in mkl)
-- pass string instead of character to :char args
 - 'ssecnd' instead of 'second'
-- gees, geesx, gges, ggesx 
+- gees, geesx, gges, ggesx  (callback definition)
 - the order of return value is the same as the input order
+
