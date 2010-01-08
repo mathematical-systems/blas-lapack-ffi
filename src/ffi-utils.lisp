@@ -320,6 +320,7 @@
   ;; deal with out parameters
   (multiple-value-bind (lisp-name internal-lisp-name foreign-name docstring args)
       (process-function-name-and-options name-and-options args)
+    (declare (ignorable foreign-name))
     (multiple-value-bind (out-parameters in-parameters)
         (extract-out-args args)
       (declare (ignorable in-parameters))
@@ -386,7 +387,7 @@
             ;; the final form
             `(progn
                (declaim (inline ,internal-lisp-name))
-               (cffi:defcfun (,internal-lisp-name ,foreign-name) ,return-type
+               (cffi:defcfun ,internal-lisp-name ,return-type ; (,internal-lisp-name ,foreign-name)
                  ,@(mapcar (lambda (a) (list (first a) :pointer)) args))
                (defun ,lisp-name ,(mapcar #'car args)
                  ,@(ensure-list docstring)
