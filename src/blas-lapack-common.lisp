@@ -64,12 +64,11 @@
     `(progn
        ,@(loop for p in precisions
 	       for function-name = (symbolicate (getf (cdr (assoc p +precision-definitions+)) :abbrev) name)
-	       do (assert (cffi:foreign-symbol-pointer
-                           (string-capitalize 
-                            (nth-value 1 (cffi::parse-name-and-options function-name))))
+               for foreign-symbol-name = (string-upcase (nth-value 1 (cffi::parse-name-and-options function-name)))
+	       do (assert (cffi:foreign-symbol-pointer foreign-symbol-name)
 	       		  nil
 	       		  "Cannot resolve foreign function symbol (~a)"
-	       		  (nth-value 1 (cffi::parse-name-and-options function-name)))
+	       		  foreign-symbol-name)
 	       collect `(%defblas ,function-name
 				  ,(if (eq return-type :precision)
 				       p
