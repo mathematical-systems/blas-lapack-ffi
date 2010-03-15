@@ -387,7 +387,7 @@
             ;; the final form
             `(progn
                (declaim (inline ,internal-lisp-name))
-               (cffi:defcfun ,internal-lisp-name ,return-type ; (,internal-lisp-name ,foreign-name)
+               (cffi:defcfun (,internal-lisp-name ,foreign-name) ,return-type ; (,internal-lisp-name ,foreign-name)
                  ,@(mapcar (lambda (a) (list (first a) :pointer)) args))
                (defun ,lisp-name ,(mapcar #'car args)
                  ,@(ensure-list docstring)

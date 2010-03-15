@@ -18,3 +18,6 @@
 
 * TODO create array pool
 
+* TODO 1 BLAS and several LAPACK functions cannot be found in the MKL library.
+
+

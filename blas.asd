@@ -8,12 +8,12 @@
 (asdf:defsystem blas
   :description "A BLAS binding."
   :author "MSI"
-  :version "0.1"
+  :version "0.2.20100315"
   :depends-on (:alexandria :cffi :iterate)
   :components
   ((:module src
 	    :components ((:file "packages")
-			 (:file "preload")
+			 (:file "preload-for-customized-library")
 			 (:file "ffi-utils" :depends-on ("packages"))
 			 (:file "blas-lapack-common" :depends-on ("ffi-utils"))
 			 (:file "blas" :depends-on ("blas-lapack-common")))

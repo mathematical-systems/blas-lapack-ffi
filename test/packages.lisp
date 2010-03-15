@@ -1,5 +1,5 @@
 (defpackage :msi.blas-lapack.test
-    (:use :cl :msi.ffi-utils :iterate :lift)
+    (:use :cl :msi.ffi-utils :iterate :stefil)
   (:export #:one-value
            #:make-random-array
            #:make-random-symmetric-matrix
@@ -14,7 +14,7 @@
            ))
 
 (defpackage :msi.blas.test
-    (:use :cl :msi.ffi-utils :msi.blas-lapack.test :msi.blas :iterate :lift))
+    (:use :cl :msi.ffi-utils :msi.blas-lapack.test :msi.blas :iterate :stefil))
 
 (defpackage :msi.lapack.test
-    (:use :cl :msi.ffi-utils :msi.blas-lapack.test :msi.lapack :iterate :lift))
+    (:use :cl :msi.ffi-utils :msi.blas-lapack.test :msi.lapack :iterate :stefil))

@@ -1,7 +1,7 @@
 (asdf:defsystem lapack-test
   :description "Testing programs for LAPACK binding."
   :author "MSI"
-  :depends-on (:alexandria :iterate :lift :lapack)
+  :depends-on (:alexandria :iterate :stefil :lapack)
   :components
   ((:module test
 	    :components ((:file "packages")

@@ -1,5 +1,9 @@
 (in-package :msi.blas.test)
 
+(in-suite root-suite)
+
+(defsuite* blas-test)
+
 ;;;; data
 
 ;;; 1d array
@@ -18,7 +22,7 @@
 (defparameter *zy10* (setup-array (make-static-array 10 :element-type '(complex double-float) :warning nil)
 				  :rstart #c(18 0) :rstep #c(-2 -1)))
 
-(defun setup-test-data ()
+(defixture test-data
   (setup-array *sx10*)
   (setup-array *dx10*)
   (setup-array *cx10* :rstep #c (1 2))
@@ -31,31 +35,32 @@
 
 
 ;;; blas1 test
-(deftestsuite blas-test () ()
-  (:equality-test 'equalp)
-  (:setup (setup-test-data))
-  (:run-setup :once-per-test-case)
-  (:tests
-   ;; asum
-   ((ensure-same 45 (sasum 10 *sx10* 1)))
-   ((ensure-same 45 (dasum 10 *dx10* 1)))
-   ((ensure-same 135 (scasum 10 *cx10* 1)))
-   ((ensure-same 135 (dzasum 10 *zx10* 1)))
-   ((ensure-same 20 (sasum 5 *sx10* 2)))
-   ((ensure-same 10 (dasum 5 *dx10* 1)))
-   ;; axpy
-   ((ensure-same #(18 17 16 15 14 13 12 11 10 9)
-                 (saxpy 10 1.0 *sx10* 1 *sy10* 1)))
-   ((ensure-same #(18 17 16 15 14 13 12 11 10 9)
-                 (daxpy 10 1.0d0 *dx10* 1 *dy10* 1)))
-   ((ensure-same #(18 #c(17 1) #c(16 2) #c(15 3) #c(14 4) #c(13 5) #c(12 6) #c(11 7) #c(10 8) #c(9 9))
-                 (caxpy 10 #c(1.0 0.0) *cx10* 1 *cy10* 1)))
-   ((ensure-same #(18 #c(17 1) #c(16 2) #c(15 3) #c(14 4) #c(13 5) #c(12 6) #c(11 7) #c(10 8) #c(9 9))
-                 (zaxpy 10 #c(1d0 0d0) *zx10* 1 *zy10* 1)))
-   ((ensure-same #(18 18 18 18 18 18 18 18 2 0)
-                 (daxpy 8 2.0d0 *dx10* 1 *dy10* 1)))
-   ((ensure-same #(18 16 18 12 18 8 18 4 2 0)
-                 (daxpy 4 2.0d0 *dx10* 2 *dy10* 2)))
-   ;; TODO: copy
-   ))
+(deftest test-asum ()
+  (with-fixture test-data
+    (is (= 45 (sasum 10 *sx10* 1)))
+    (is (= 45 (dasum 10 *dx10* 1)))
+    (is (= 135 (scasum 10 *cx10* 1)))
+    (is (= 135 (dzasum 10 *zx10* 1)))
+    (is (= 20 (sasum 5 *sx10* 2)))
+    (is (= 10 (dasum 5 *dx10* 1)))))
+
+(deftest test-axpy ()
+  (with-fixture test-data
+    (is (equalp #(18 17 16 15 14 13 12 11 10 9)
+                (saxpy 10 1.0 *sx10* 1 *sy10* 1))))
+  (with-fixture test-data
+    (is (equalp #(18 17 16 15 14 13 12 11 10 9)
+                (daxpy 10 1.0d0 *dx10* 1 *dy10* 1))))
+  (with-fixture test-data
+    (is (equalp #(18 #c(17 1) #c(16 2) #c(15 3) #c(14 4) #c(13 5) #c(12 6) #c(11 7) #c(10 8) #c(9 9))
+                (caxpy 10 #c(1.0 0.0) *cx10* 1 *cy10* 1))))
+  (with-fixture test-data
+    (is (equalp #(18 #c(17 1) #c(16 2) #c(15 3) #c(14 4) #c(13 5) #c(12 6) #c(11 7) #c(10 8) #c(9 9))
+                (zaxpy 10 #c(1d0 0d0) *zx10* 1 *zy10* 1))))
+  (with-fixture test-data
+    (is (equalp #(18 18 18 18 18 18 18 18 2 0)
+                (daxpy 8 2.0d0 *dx10* 1 *dy10* 1))))
+  (with-fixture test-data
+    (is (equalp #(18 16 18 12 18 8 18 4 2 0)
+                (daxpy 4 2.0d0 *dx10* 2 *dy10* 2)))))
 

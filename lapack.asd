@@ -3,7 +3,7 @@
 (asdf:defsystem lapack
   :description "A LAPACK binding."
   :author "MSI"
-  :version "0.1"
+  :version "0.2.20100315"
   :depends-on (:blas)
   :components
   ((:module src

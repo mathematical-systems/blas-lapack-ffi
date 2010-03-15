@@ -227,6 +227,7 @@
   (EXPORT 'iZAMIN))
 
 ;;; cabs1
+#+nil
 (defblas cabs1 (:double) :double
   (z :complex-double))
 

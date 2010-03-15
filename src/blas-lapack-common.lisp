@@ -61,7 +61,7 @@
 	  "Precisions = ~a, is not a recognized value."
 	  precisions)
   (let ((precisions (ensure-list precisions))) 
-    `(progn
+    `(let (#+allegro (comp:*CLTL1-COMPILE-FILE-TOPLEVEL-COMPATIBILITY-P* nil))
        ,@(loop for p in precisions
 	       for function-name = (symbolicate (getf (cdr (assoc p +precision-definitions+)) :abbrev) name)
                for foreign-symbol-name = (string-upcase (nth-value 1 (cffi::parse-name-and-options function-name)))

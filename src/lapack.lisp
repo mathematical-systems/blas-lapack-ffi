@@ -4023,6 +4023,7 @@
   (info blas-int :out))
 
 ;;; syrdb
+#+nil
 (deflapack syrdb (:single :double) :void
   (jobz :string)
   (uplo :string)
@@ -4048,6 +4049,7 @@
   (info blas-int :out))
 
 ;;; herdb
+#+nil
 (deflapack herdb (:complex-single :complex-double) :void
   (jobz :string)
   (uplo :string)
@@ -4310,6 +4312,7 @@
 
 ;;; stemr
 ;;; TODO: test tryrac, it's a boolean parameter
+#+nil
 (deflapack stemr (:single :double :complex-single :complex-double) :void
   (jobz :string)
   (range :string)
@@ -5569,6 +5572,7 @@
   (cmach :string))
 
 ;;; lamc1
+#+nil
 (deflapack lamc1 (:single :double) :void
   (beta blas-int :out)
   (tt blas-int :out)
@@ -5576,6 +5580,7 @@
   (ieee1 :boolean :out))
 
 ;;; lamc2
+#+nil
 (deflapack lamc2 (:single :double) :void
   (beta blas-int :out)
   (tt blas-int :out)
@@ -5587,17 +5592,20 @@
   (rmax :precision :out))
 
 ;;; lamc3
+#+nil
 (deflapack lamc3 (:single :double) :precision
   (a :precision)
   (b :precision))
 
 ;;; lamc4
+#+nil
 (deflapack lamc4 (:single :double) :void
   (emin blas-int :out)
   (start :precision)
   (base blas-int))
 
 ;;; lamc5
+#+nil
 (deflapack lamc5 (:single :double) :void
   (beta blas-int)
   (p blas-int)
