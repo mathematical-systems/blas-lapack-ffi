@@ -5,6 +5,11 @@
 ;;   (loop for dir in (directory "addons/*/*.asd") do 
 ;;     (pushnew (make-pathname :directory (pathname-directory dir)) asdf:*central-registry* :test 'equal)))
 
+(in-package :cl-user)
+
+#+allegro
+(defvar old-*cltl1-compile-file-toplevel-compatibility-p* comp:*cltl1-compile-file-toplevel-compatibility-p*)
+
 (asdf:defsystem blas
   :description "A BLAS binding."
   :author "MSI"
@@ -18,5 +23,13 @@
 			 (:file "blas-lapack-common" :depends-on ("ffi-utils"))
 			 (:file "blas" :depends-on ("blas-lapack-common")))
 	    :serial t
-	    )))
+	    :perform
+            (asdf:load-op :before (op c)
+                          (progn
+                            #+allegro (setf comp:*CLTL1-COMPILE-FILE-TOPLEVEL-COMPATIBILITY-P* nil)))
+            :perform
+            (asdf:load-op :after (op c)
+                          (progn
+                            #+allegro (setf comp:*CLTL1-COMPILE-FILE-TOPLEVEL-COMPATIBILITY-P*
+                                            old-*cltl1-compile-file-toplevel-compatibility-p*))))))
 

@@ -384,7 +384,7 @@
                           temp-value-type-arg-names
                           temp-value-type-bindings
                           body)))
-            ;; the final form
+            ;; the final form 
             `(progn
                (declaim (inline ,internal-lisp-name))
                (cffi:defcfun (,internal-lisp-name ,foreign-name) ,return-type ; (,internal-lisp-name ,foreign-name)
