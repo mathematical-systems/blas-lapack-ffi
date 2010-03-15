@@ -104,8 +104,8 @@ ifndef threading
 threading=parallel
 endif
 
-IFACE_COMP_PART=intel
-IFACE_THREADING_PART=intel
+IFACE_COMP_PART=gf
+IFACE_THREADING_PART=gnu
 
 ifeq ($(interface),ilp64)
 IFACE_LIB=libmkl_$(IFACE_COMP_PART)_ilp64.a

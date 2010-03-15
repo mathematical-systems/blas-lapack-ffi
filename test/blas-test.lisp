@@ -21,6 +21,9 @@
 				  :rstart #c(18 0) :rstep #c(-2 -1)))
 (defparameter *zy10* (setup-array (make-static-array 10 :element-type '(complex double-float) :warning nil)
 				  :rstart #c(18 0) :rstep #c(-2 -1)))
+(defvar A (setup-array (make-static-array '(1000 1000) :element-type 'double-float)))
+(defvar B (setup-array (make-static-array '(1000 1000) :element-type 'double-float)))
+(defvar C (setup-array (make-static-array '(1000 1000) :element-type 'double-float)))
 
 (defixture test-data
   (setup-array *sx10*)
@@ -31,6 +34,9 @@
   (setup-array *dy10* :rstep -2 :rstart 18)
   (setup-array *cy10* :rstep #c (-2 -1) :rstart #c (18 0))
   (setup-array *zy10* :rstep #c (-2 -1) :rstart #c (18 0))
+  (setup-array A)
+  (setup-array B)
+  (setup-array C)
   nil)
 
 
@@ -64,3 +70,7 @@
     (is (equalp #(18 16 18 12 18 8 18 4 2 0)
                 (daxpy 4 2.0d0 *dx10* 2 *dy10* 2)))))
 
+#+nil
+(deftest test-gemm ()
+  (with-fixture test-data
+    (dgemm "t" "t" 1000 1000 1000 1d0 a 1000 b 1000 0d0 c 1000)))
