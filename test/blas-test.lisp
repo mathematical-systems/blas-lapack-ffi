@@ -53,13 +53,13 @@
 (deftest test-axpy ()
   (with-fixture test-data
     (is (equalp #(18 17 16 15 14 13 12 11 10 9)
-                (saxpy 10 1.0 *sx10* 1 *sy10* 1))))
+                (saxpy 10 1.0f0 *sx10* 1 *sy10* 1))))
   (with-fixture test-data
     (is (equalp #(18 17 16 15 14 13 12 11 10 9)
                 (daxpy 10 1.0d0 *dx10* 1 *dy10* 1))))
   (with-fixture test-data
     (is (equalp #(18 #c(17 1) #c(16 2) #c(15 3) #c(14 4) #c(13 5) #c(12 6) #c(11 7) #c(10 8) #c(9 9))
-                (caxpy 10 #c(1.0 0.0) *cx10* 1 *cy10* 1))))
+                (caxpy 10 #c(1.0f0 0.0f0) *cx10* 1 *cy10* 1))))
   (with-fixture test-data
     (is (equalp #(18 #c(17 1) #c(16 2) #c(15 3) #c(14 4) #c(13 5) #c(12 6) #c(11 7) #c(10 8) #c(9 9))
                 (zaxpy 10 #c(1d0 0d0) *zx10* 1 *zy10* 1))))
