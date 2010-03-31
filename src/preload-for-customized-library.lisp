@@ -8,21 +8,23 @@
   (progn
     #+linux
     (cffi:load-foreign-library
-     #+x86-64
-     "lib/mkl_linux_em64t/libiomp5.so"
-     #+x86
-     "lib/mkl_linux_ia32/libiomp5.so"
-     )
+     (merge-pathnames
+      #+x86-64
+      "lib/mkl_linux_em64t/libiomp5.so"
+      #+x86
+      "lib/mkl_linux_ia32/libiomp5.so"
+      *default-pathname-defaults*))
 
     (cffi:load-foreign-library
-     #+(and linux x86-64)
-     "lib/mkl_linux_em64t/mkl_linux_em64t.so"
-     #+(and linux x86)
-     "lib/mkl_linux_ia32/mkl_linux_ia32.so"
-     #+(and windows x86)
-     "lib/mkl_win32/mkl_win32.dll"
-     #+(and windows x86-64)
-     (error "Still in TODO list.")
-     )
+     (merge-pathnames 
+      #+(and linux x86-64)
+      "lib/mkl_linux_em64t/mkl_linux_em64t.so"
+      #+(and linux x86)
+      "lib/mkl_linux_ia32/mkl_linux_ia32.so"
+      #+(and windows x86)
+      "lib/mkl_win32/mkl_win32.dll"
+      #+(and windows x86-64)
+      (error "Still in TODO list.")
+      *default-pathname-defaults*))
     (pushnew :intel-mkl *features*)))
 

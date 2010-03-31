@@ -4,7 +4,6 @@
   (:use :cl :alexandria)
   (:export #:complex-float
 	   #:complex-double
-	   #:defcfun
 	   #:defffun
 	   #:with-safe-foreign-function-call-settings
 	   #:make-static-array

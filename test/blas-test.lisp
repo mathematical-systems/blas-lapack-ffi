@@ -34,9 +34,6 @@
   (setup-array *dy10* :rstep -2 :rstart 18)
   (setup-array *cy10* :rstep #c (-2 -1) :rstart #c (18 0))
   (setup-array *zy10* :rstep #c (-2 -1) :rstart #c (18 0))
-  (setup-array A)
-  (setup-array B)
-  (setup-array C)
   nil)
 
 

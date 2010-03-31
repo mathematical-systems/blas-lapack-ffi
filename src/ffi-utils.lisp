@@ -237,7 +237,7 @@
     (declare (ignorable lisp-name foreign-name options))
     ;; generate function names
     (let* ((internal-lisp-name (make-low-level-lisp-name lisp-name))
-           (foreign-name foreign-name) ; (make-fortran-name foreign-name)
+           (foreign-name (make-fortran-name foreign-name))
            (docstring (when (stringp (car args)) (pop args)))
            (args (canonicalize-args args)))
       (values lisp-name internal-lisp-name foreign-name docstring args))))
