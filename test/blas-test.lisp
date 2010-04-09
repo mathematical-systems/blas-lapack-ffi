@@ -78,7 +78,7 @@
 
 (deftest test-dgemv ()
   (with-fixture test-data
-    (let ((y (dgemv "N" m n 1d0 a m (vector:make-dvec m (/ 1d0 m)) 1 0d0 v 1)))
+    (let ((y (dgemv "N" m n 1d0 a m (make-array m :element-type 'double-float :initial-element (/ 1d0 m)) 1 0d0 v 1)))
       (is (~= 4950.0 (aref y 0)))
       (is (~= 5050.0 (aref y (1- m)))))))
 
