@@ -1,6 +1,6 @@
 (in-package :cl)
 
-(defpackage :msi.ffi-utils
+(defpackage :ffi-utils
   (:use :cl :alexandria)
   (:export #:complex-float
 	   #:complex-double
@@ -10,8 +10,8 @@
 	   #:with-arrays-as-foreign-arrays
 	   ))
 
-(defpackage :msi.blas-lapack-common
-  (:use :cl :alexandria :msi.ffi-utils)
+(defpackage :mkl.blas-lapack-common
+  (:use :cl :alexandria :ffi-utils)
   (:export #:blas-int
 	   #:+precision-definitions+
 	   #:+matrix-type-definitions+
@@ -19,10 +19,10 @@
 	   #:deflapack
 	   ))
 
-(defpackage :msi.blas
-  (:use :cl :alexandria :msi.ffi-utils :msi.blas-lapack-common))
+(defpackage :mkl.blas
+  (:use :cl :alexandria :ffi-utils :mkl.blas-lapack-common))
 
-(defpackage :msi.lapack
-  (:use :cl :alexandria :msi.ffi-utils :msi.blas-lapack-common))
+(defpackage :mkl.lapack
+  (:use :cl :alexandria :ffi-utils :mkl.blas-lapack-common))
 
 

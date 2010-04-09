@@ -1,4 +1,4 @@
-(in-package :msi.blas-lapack-common)
+(in-package :mkl.blas-lapack-common)
 
 ;;;; type definitions
 

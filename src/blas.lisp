@@ -1,4 +1,4 @@
-(in-package :msi.blas)
+(in-package :mkl.blas)
 
 ;;;; blas1
 

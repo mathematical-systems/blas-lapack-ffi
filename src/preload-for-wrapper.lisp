@@ -1,4 +1,4 @@
-(in-package :msi.blas-lapack-common)
+(in-package :mkl.blas-lapack-common)
 
 (eval-when (:compile-toplevel :load-toplevel :execute)
   (defvar *source-path*

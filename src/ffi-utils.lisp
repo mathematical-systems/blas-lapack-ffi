@@ -1,4 +1,4 @@
-(in-package :msi.ffi-utils)
+(in-package :ffi-utils)
 
 
 ;;; TYPE: foreign complex type declaration
@@ -20,7 +20,7 @@
 	:element-type ,element-type
 	,@(when initial-element `(:initial-element ,initial-element))
 	,@(when initial-contents `(:initial-contents ,initial-contents))
-	:allocation :static-reclaimable))
+	:allocation :lispstatic-reclaimable))
   #+sbcl
   (progn
     (eval-when (:compile-toplevel)

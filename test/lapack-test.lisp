@@ -1,4 +1,4 @@
-(in-package :msi.lapack.test)
+(in-package :mkl.lapack.test)
 
 
 (in-suite root-suite)

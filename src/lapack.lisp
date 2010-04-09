@@ -1,4 +1,4 @@
-(in-package :msi.lapack)
+(in-package :mkl.lapack)
 
 
 

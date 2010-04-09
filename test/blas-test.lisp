@@ -1,4 +1,4 @@
-(in-package :msi.blas.test)
+(in-package :mkl.blas.test)
 
 (in-suite root-suite)
 
@@ -21,9 +21,12 @@
 				  :rstart #c(18 0) :rstep #c(-2 -1)))
 (defparameter *zy10* (setup-array (make-static-array 10 :element-type '(complex double-float) :warning nil)
 				  :rstart #c(18 0) :rstep #c(-2 -1)))
-(defvar A (setup-array (make-static-array '(1000 1000) :element-type 'double-float)))
-(defvar B (setup-array (make-static-array '(1000 1000) :element-type 'double-float)))
-(defvar C (setup-array (make-static-array '(1000 1000) :element-type 'double-float)))
+(defparameter m 200)
+(defparameter n 100)
+(defparameter A (setup-array (make-static-array '(100 200) :element-type 'double-float)))
+(defparameter B (setup-array (make-static-array '(200 100) :element-type 'double-float)))
+(defparameter C (setup-array (make-static-array '(200 200) :element-type 'double-float)))
+(defparameter V (setup-array (make-static-array 200 :element-type 'double-float)))
 
 (defixture test-data
   (setup-array *sx10*)
@@ -34,7 +37,10 @@
   (setup-array *dy10* :rstep -2 :rstart 18)
   (setup-array *cy10* :rstep #c (-2 -1) :rstart #c (18 0))
   (setup-array *zy10* :rstep #c (-2 -1) :rstart #c (18 0))
-  nil)
+  (setup-array A)
+  (setup-array B)
+  (setup-array C)
+  (setup-array V))
 
 
 ;;; blas1 test
@@ -67,7 +73,12 @@
     (is (equalp #(18 16 18 12 18 8 18 4 2 0)
                 (daxpy 4 2.0d0 *dx10* 2 *dy10* 2)))))
 
-#+nil
-(deftest test-gemm ()
+
+;;; blas2 tests
+
+(deftest test-dgemv ()
   (with-fixture test-data
-    (dgemm "t" "t" 1000 1000 1000 1d0 a 1000 b 1000 0d0 c 1000)))
+    (let ((y (dgemv "N" m n 1d0 a m (vector:make-dvec m (/ 1d0 m)) 1 0d0 v 1)))
+      (is (~= 4950.0 (aref y 0)))
+      (is (~= 5050.0 (aref y (1- m)))))))
+

@@ -1,4 +1,4 @@
-(in-package :msi.blas-lapack.test)
+(in-package :mkl.blas-lapack.test)
 
 (defun one-value (element-type rmax rmin)
   (cond ((member element-type '(single-float double-float integer fixnum))
