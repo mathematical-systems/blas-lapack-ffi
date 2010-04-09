@@ -352,44 +352,45 @@
                                       string-args))
                (array-args (extract-array-bindings pointer-type-args)))
           ;; build the body for lisp side
-          (let* ((body (with-unique-names (result)
-                         ;; deal with the return value if it's a complex-number
-                         ;; also return out params as multiple values
-                         ;; don't return nil if the return type of the function is :void
-                         `(let ((,result (,internal-lisp-name
-                                          ,@(substitute-args-with-temp-names
-                                             temp-value-type-arg-names
-                                             temp-string-arg-names
-                                             args))))
-                            (declare (ignorable ,result))
-                            (values
-                              ,@(unless (eq return-type :void)
-                                  (if (or (string-type-p return-type)
-                                          (not (pointer-type-p return-type)))
-                                      `(,result)
-                                      `(,(build-foreign-values-to-lisp-form result return-type))))
-                              ,@(loop for arg in out-parameters
-                                      collect (build-foreign-values-to-lisp-form
-                                               (or (or (cdr (assoc (var-name arg) temp-value-type-arg-names))
-                                                       (cdr (assoc (var-name arg) temp-string-arg-names)))
-                                                   (var-name arg))
-                                               (var-type arg))))))))
+          (let ((invoke `(,internal-lisp-name
+                          ,@(substitute-args-with-temp-names
+                             temp-value-type-arg-names
+                             temp-string-arg-names
+                             args))))
             (when array-args
-              (setf body (build-body-with-array-args-handling array-args body)))
-            (when string-args
-              (setf body (build-body-with-string-args-handling temp-string-bindings body)))
-            (when value-type-args
-              (setf body (build-body-with-value-type-args-handling
-                          value-type-args
-                          temp-value-type-arg-names
-                          temp-value-type-bindings
-                          body)))
-            ;; the final form 
-            `(progn
-               (declaim (inline ,internal-lisp-name))
-               (cffi:defcfun (,internal-lisp-name ,foreign-name) ,return-type ; (,internal-lisp-name ,foreign-name)
-                 ,@(mapcar (lambda (a) (list (first a) :pointer)) args))
-               (defun ,lisp-name ,(mapcar #'car args)
-                 ,@(ensure-list docstring)
-                 (with-safe-foreign-function-call-settings
-                   ,body)))))))))
+              (setf invoke (build-body-with-array-args-handling array-args invoke)))
+            (let* ((body (with-unique-names (result)
+                           ;; deal with the return value if it's a complex-number
+                           ;; also return out params as multiple values
+                           ;; don't return nil if the return type of the function is :void
+                           `(let ((,result ,invoke))
+                              (declare (ignorable ,result))
+                              (values
+                                ,@(unless (eq return-type :void)
+                                    (if (or (string-type-p return-type)
+                                            (not (pointer-type-p return-type)))
+                                        `(,result)
+                                        `(,(build-foreign-values-to-lisp-form result return-type))))
+                                ,@(loop for arg in out-parameters
+                                        collect (build-foreign-values-to-lisp-form
+                                                 (or (or (cdr (assoc (var-name arg) temp-value-type-arg-names))
+                                                         (cdr (assoc (var-name arg) temp-string-arg-names)))
+                                                     (var-name arg))
+                                                 (var-type arg)))))))) 
+              (when string-args
+                (setf body (build-body-with-string-args-handling temp-string-bindings body)))
+              (when value-type-args
+                (setf body (build-body-with-value-type-args-handling
+                            value-type-args
+                            temp-value-type-arg-names
+                            temp-value-type-bindings
+                            body)))
+              ;; the final form 
+              `(progn
+                 (declaim (inline ,internal-lisp-name))
+                 (cffi:defcfun (,internal-lisp-name ,foreign-name) ,return-type ; (,internal-lisp-name ,foreign-name)
+                   ,@(mapcar (lambda (a) (list (first a) :pointer)) args))
+                 (defun ,lisp-name ,(mapcar #'car args)
+                   ,@(ensure-list docstring)
+                   (with-safe-foreign-function-call-settings
+                     ,body))))))))))
