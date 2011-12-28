@@ -123,3 +123,54 @@
                               (0.0853 -0.3648  -0.8558  0.3568)
                               (-0.0167  0.0879 0.3497  0.9326))))))))))
 
+;;; dsyevx
+;;; program: http://www.nag.co.uk/lapack-ex/examples/source/dsyevx-ex.f
+;;; data: http://www.nag.co.uk/lapack-ex/examples/data/dsyevx-ex.d
+;;; result: http://www.nag.co.uk/lapack-ex/examples/results/dsyevx-ex.r
+(deftest test-dsyevx ()
+  (let* ((jobz "V")
+         (range "V")
+         (vl -1d0)
+         (vu 1d0)
+         (uplo "U")
+         (n 4)
+         (il 1)
+         (iu 4)
+         (ldz (max 1 n))
+         (lwork (max 1 (* 8 n)))
+         (work (make-array lwork :element-type 'double-float))
+         (iwork (make-array (max 1 (* 5 n)) :initial-element 0 :element-type '(unsigned-byte 32)))
+         (m 0)
+         (w (make-array (max 1 n) :element-type 'double-float))
+         (z (make-array `(,n ,ldz) :element-type 'double-float))
+         (info 0)
+         (ifail (make-array (max 1 n) :initial-element 0 :element-type '(unsigned-byte 32)))
+         (lda 4)
+         (abstol 0d0)
+         (a (make-array (list 4 4) :element-type 'double-float
+                        :initial-contents (coerce-to-double 
+                                           '((1.0 2.0 3.0 4.0)
+                                             (2.0 2.0 3.0 4.0)
+                                             (3.0 3.0 3.0 4.0)
+                                             (4.0 4.0 4.0 4.0))))))
+    (multiple-value-bind (a m w z work ifail info)
+        (mkl.lapack:dsyevx jobz range uplo n a lda vl vu il iu abstol m w z
+                           ldz work lwork iwork ifail info)
+      (setq w (subseq w 0 m)
+            z (make-array `(,m ,n) :initial-contents (loop for i below m
+                                                         collect (loop for j below n
+                                                                     collect (aref z i j)))
+                          :element-type 'double-float))
+      (is (= info 0))
+      (is (~= (round-array w 0.0001)
+              #(-0.5146 -0.2943)))
+      (is (~= (round-array z 0.0001)
+              (make-array (array-dimensions z)
+                          :element-type 'double-float
+                          :initial-contents
+                          (transpose-list-array 
+                           (coerce-to-double 
+                            '((-0.5144  0.2767)
+                              (0.4851 -0.6634)
+                              (0.5420  0.6504)
+                              (-0.4543 -0.2457))))))))))

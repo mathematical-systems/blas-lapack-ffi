@@ -8,7 +8,12 @@ This package also contains other interesting stuff:
   (see src/lapack_wrapper.*, src/Makefile)
 - Some utilities for thread-safety (e.g. make-static-array)
 
+BLAS/LAPACK manuals can be found at:
+
+  http://software.intel.com/en-us/articles/intel-math-kernel-library-documentation/
+
 For other information you can find them in docs/.
+
 
 
 Jianshi Huang (MSI)

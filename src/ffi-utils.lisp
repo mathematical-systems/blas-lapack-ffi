@@ -221,7 +221,8 @@
   (intern (concatenate 'string "%" (symbol-name lisp-name))))
 
 (defun make-fortran-name (foreign-name)
-  (concatenate 'string foreign-name "_"))
+  #-windows (concatenate 'string foreign-name "_")
+  #+windows (string-upcase foreign-name))
 
 (defun canonicalize-args (args)
   (assert (every (lambda (a) (>= (length a) 2)) args))
